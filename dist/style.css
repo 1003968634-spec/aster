@@ -13,3 +13,4 @@
 @media(max-width:1100px){.tarot-grid{column-gap:24px}.tarot-card{height:310px}.tarot-art{height:218px}.tarot-back-design{height:188px}.tarot-back-subtitle{font-size:15px}}
 @media(max-width:820px){.tarot-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 24px}.tarot-card{height:300px}.tarot-art{height:208px}.tarot-back-design{height:184px}}
 @media(max-width:580px){.tarot-grid{gap:27px 17px}.tarot-card{height:268px}.tarot-art{height:180px}.tarot-back-design{height:162px}.tarot-back-subtitle{font-size:14px}.send-button,textarea,input,select{scroll-margin-bottom:115px}.star-navigation{box-shadow:0 0 0 8px var(--paper),0 -12px 24px 6px var(--paper)}.composer textarea{font-size:16px}.composer textarea::placeholder{font-size:18px}}
+.celestial-art img{filter:brightness(1.04) contrast(1.1);mask-image:radial-gradient(ellipse at center,#000 48%,transparent 74%);-webkit-mask-image:radial-gradient(ellipse at center,#000 48%,transparent 74%)}
