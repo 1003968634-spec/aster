@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Italiana&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/style.css" />
-  <script src="/app.js" defer></script>
+  <link rel="stylesheet" href="/style.css?v=2" />
+  <script src="/app.js?v=2" defer></script>
 </head>
 <body>
   <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -30,11 +30,11 @@
   <header class="masthead">
     <button class="wordmark" data-page="home" aria-label="Aster home"><svg class="icon"><use href="#star"/></svg><span>aster</span><span class="wordmark-period">.</span></button>
     <div class="masthead-note">a space for your thoughts</div>
-    <button class="edition" data-page="profile"><span class="tiny-star">✧</span> YOUR PERSONAL UNIVERSE <span class="edition-no">N° 001</span></button>
+    <button class="greeting header-greeting" data-page="profile" aria-label="Hello, Sandman. Manage your profile"><span class="greeting-copy">Hello, <span id="greeting-name">Sandman</span><span class="greeting-dot">.</span></span><svg class="greeting-spark" aria-hidden="true"><use href="#star"/></svg></button>
   </header>
   <main id="main" tabindex="-1">
     <section class="page home-page" data-view="home">
-      <div class="home-heading"><div class="eyebrow"><span class="line"></span> THE WORLD CAN WAIT A LITTLE</div><button class="greeting" data-page="profile" aria-label="Hello, Sandman. Manage your profile"><span>Hello, </span><em id="greeting-name">Sandman</em><span class="greeting-dot">.</span><svg class="greeting-spark"><use href="#star"/></svg></button><p class="heading-note">Where shall we wander today?</p></div>
+      <div class="home-heading"><div class="eyebrow"><span class="line"></span> THE WORLD CAN WAIT A LITTLE</div><p class="heading-note">Where shall we wander today?</p></div>
       <div class="workspace">
         <div class="conversation-area">
           <div class="conversation-topline"><span><span class="small-aster">✳</span> A LITTLE ROOM FOR BIG IDEAS</span><button class="text-button" id="new-chat">New conversation <svg class="icon"><use href="#plus"/></svg></button></div>
@@ -47,11 +47,11 @@
           <div class="suggestions"><span class="hand-note">a few little sparks</span><button data-prompt="Help me find an unexpected idea for a creative project.">Dream something up <span>↗</span></button><button data-prompt="Help me turn a tangled thought into a clear plan.">Untangle a thought <span>↗</span></button><button data-prompt="Help me make a gentle plan for my day.">Make a little plan <span>↗</span></button></div>
           <div class="conversation-footnote"><span class="tiny-star">✧</span> Made for curiosity. Room for a little magic.<span class="demo-label">INTERACTIVE DEMO</span></div>
         </div>
-        <aside class="celestial-aside" aria-label="Celestial pencil illustration"><div class="art-caption top">Fig. 01 — The wandering mind</div><div class="celestial-art" id="celestial-art"><div class="geometric-orbit orbit-a"></div><div class="geometric-orbit orbit-b"></div><div class="geometric-orbit orbit-c"></div><svg class="center-star"><use href="#star"/></svg><span class="floating-star star-one">✧</span><span class="floating-star star-two">✦</span><span class="floating-star star-three">✧</span><div class="art-rule"></div></div><div class="art-caption bottom">a small constellation of possibilities</div></aside>
+        <aside class="celestial-aside" aria-label="Celestial pencil illustration"><div class="art-caption top">The wandering mind</div><div class="celestial-art" id="celestial-art"><div class="geometric-orbit orbit-a"></div><div class="geometric-orbit orbit-b"></div><div class="geometric-orbit orbit-c"></div><svg class="center-star"><use href="#star"/></svg><span class="floating-star star-one">✧</span><span class="floating-star star-two">✦</span><span class="floating-star star-three">✧</span><div class="art-rule"></div></div><div class="art-caption bottom">a small constellation of possibilities</div></aside>
       </div>
     </section>
   </main>
-  <nav class="star-navigation" aria-label="Your universe"><span class="nav-guide">YOUR ORBIT</span><div class="star-nav-line" aria-hidden="true"></div><button data-page="history" class="nav-star" aria-label="Conversation history"><span class="nav-number">01</span><svg><use href="#star"/></svg><span class="nav-label">Memories</span></button><button data-page="plugins" class="nav-star" aria-label="Plugin library"><span class="nav-number">02</span><svg><use href="#star"/></svg><span class="nav-label">The atelier</span></button><button data-page="schedule" class="nav-star" aria-label="Scheduled tasks"><span class="nav-number">03</span><svg><use href="#star"/></svg><span class="nav-label">Rituals</span></button><button data-page="settings" class="nav-star" aria-label="User settings"><span class="nav-number">04</span><svg><use href="#star"/></svg><span class="nav-label">Your world</span></button><span class="nav-end">✧</span></nav>
+  <nav class="star-navigation" aria-label="Your universe"><span class="nav-guide">YOUR ORBIT</span><div class="star-nav-line" aria-hidden="true"></div><button data-page="history" class="nav-star" aria-label="Conversation history"><svg><use href="#star"/></svg><span class="nav-label">Memories</span></button><button data-page="plugins" class="nav-star" aria-label="Plugin library"><svg><use href="#star"/></svg><span class="nav-label">The atelier</span></button><button data-page="schedule" class="nav-star" aria-label="Scheduled tasks"><svg><use href="#star"/></svg><span class="nav-label">Rituals</span></button><button data-page="settings" class="nav-star" aria-label="User settings"><svg><use href="#star"/></svg><span class="nav-label">Your world</span></button><span class="nav-end">✧</span></nav>
   <footer class="page-footer"><span>A little less ordinary.</span><div>THOUGHTFULLY YOURS <svg class="icon"><use href="#star"/></svg> ASTER</div><span class="footer-coordinates">EST. 2026 <span>↗</span></span></footer>
   <div class="page-transition" id="page-transition" aria-hidden="true"><span></span><svg><use href="#star"/></svg><span></span></div>
   <div class="toast" id="toast" role="status"></div>
