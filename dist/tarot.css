@@ -1,4 +1,4 @@
-/* Dimensional cut-paper surfaces on a quiet, unframed canvas. */
+/* Dimensional cut-paper surfaces over a quiet watercolor canvas. */
 :root {
   --paper:#f2ead7; --paper-light:#fbf4e5; --ink:#303e3d; --muted:#877653;
   --gold:#aa8140; --line:#cdbd99; --star-paper:#f7e9c9;
@@ -8,7 +8,15 @@
   --paper-fiber:repeating-linear-gradient(112deg,#fffdf71c 0 1px,transparent 1px 4px);
 }
 body {background:var(--canvas);}
-.gift-box {background:transparent;border:0;border-radius:0;box-shadow:none;}
+.watercolor-backdrop {position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:var(--canvas);}
+.canvas-wash {position:absolute;inset:0;background-image:url('./assets/watercolor-canvas.png');background-position:center;background-size:100% 100%;background-repeat:no-repeat;}
+.canvas-orbit {position:absolute;display:block;aspect-ratio:1;border:1px solid;box-sizing:border-box;border-radius:50%;opacity:.36;}
+.orbit-northeast {width:clamp(240px,28vw,450px);right:-7%;top:-13%;border-color:#a39781;mask-image:linear-gradient(130deg,transparent 12%,#000 43%,#000 73%,transparent 95%);-webkit-mask-image:linear-gradient(130deg,transparent 12%,#000 43%,#000 73%,transparent 95%);}
+.orbit-southwest {width:clamp(300px,36vw,570px);left:-14%;bottom:-20%;border-color:#8297a4;mask-image:linear-gradient(40deg,transparent 10%,#000 40%,#000 65%,transparent 96%);-webkit-mask-image:linear-gradient(40deg,transparent 10%,#000 40%,#000 65%,transparent 96%);}
+.canvas-orbit::after {content:'';position:absolute;width:5px;height:5px;border-radius:50%;background:currentColor;}
+.orbit-northeast::after {right:14.6%;bottom:14.6%;color:#b19b6e;}
+.orbit-southwest::after {right:14.6%;top:14.6%;color:#8e9da7;}
+.gift-box {z-index:1;background:transparent;border:0;border-radius:0;box-shadow:none;}
 .gift-box::before {content:none;}
 .gift-box>.masthead {height:91px;margin:7px 3.4% 0;padding:0 20px;border:0;isolation:isolate;filter:drop-shadow(2px 4px 3px #635c4933);}
 .gift-box>.masthead::before {content:'';position:absolute;inset:7px -7px 5px;z-index:-1;background:var(--paper-fiber),linear-gradient(105deg,#f5ecd6,#e4d5b4);clip-path:var(--cut-paper);}
@@ -129,6 +137,7 @@ button:focus-visible,a:focus-visible {outline-color:#cfad63;outline-offset:6px;}
 
 /* The alternate canvas keeps the same paper contrast. */
 :root[data-theme=dusk] {--canvas:#e2e5df;--paper:#e1e4d1;--paper-light:#f1f2df;--ink:#344742;--muted:#6c7662;--line:#afb99a;--star-paper:#d9c99d;}
+:root[data-theme=dusk] .canvas-wash {opacity:.62;mix-blend-mode:multiply;}
 :root[data-theme=dusk] .layer-front {--sheet-color:#e2e5d3;}
 :root[data-theme=dusk] .conversation-paper {background:transparent;}
 :root[data-theme=dusk] .gift-box>.masthead::before {background:var(--paper-fiber),linear-gradient(110deg,#e6e7d7,#c0cbb7);}
@@ -165,6 +174,9 @@ button:focus-visible,a:focus-visible {outline-color:#cfad63;outline-offset:6px;}
   .conversation-topline {letter-spacing:.6px;font-size:10px;}
 }
 @media(max-width:580px) {
+  .canvas-orbit {opacity:.24;}
+  .orbit-northeast {width:240px;right:-115px;top:-50px;}
+  .orbit-southwest {width:320px;left:-180px;bottom:-75px;}
   :root {--box-inset:10px;--box-depth:12px;--wordmark-size:30px;}
   .gift-box>.masthead {height:70px;margin:3px 6px 0;padding:0 7px;gap:7px;filter:drop-shadow(2px 3px 2px #635c492b);}
   .gift-box>.masthead::before {inset:6px -4px;}

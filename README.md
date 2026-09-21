@@ -29,6 +29,6 @@ All state is local to the browser in `aster-demo-v1`. AI replies are samples, pl
 
 Main files: `dist/index.html`, `dist/style.css`, `dist/app.js`. Original generated artwork is in `dist/assets/celestial.png`.
 
-The cut-paper treatment is in `dist/tarot.css`: layered cardstock surfaces, ivory cut edges and dimensional icon shadows on a quiet, unframed canvas. The earlier paper-theatre background asset is retained in `dist/assets/tarot-paper-interior.png` but is not used by the current interface.
+The cut-paper treatment is in `dist/tarot.css`: layered cardstock surfaces, ivory cut edges and dimensional icon shadows over an unframed watercolor canvas. The background in `dist/assets/watercolor-canvas.png` keeps its blue-grey lower-left and pale rose upper-right washes visible at every screen shape; two quiet circular arcs complete the celestial geometry. The earlier paper-theatre background asset is retained in `dist/assets/tarot-paper-interior.png` but is not used by the current interface.
 
 Header lettering uses the locally bundled TeX Gyre Chorus Medium Italic, distributed with its GUST Font License and LPPL notices in `dist/assets/fonts/`.
