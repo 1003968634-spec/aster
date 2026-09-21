@@ -1,0 +1,265 @@
+/* A cut-paper working surface inside an open, celestial tarot box. */
+:root {
+  --paper:#f2ead7; --paper-light:#fbf4e5; --ink:#303e3d; --muted:#877653;
+  --gold:#aa8140; --line:#cdbd99; --star-paper:#f7e9c9;
+  --box-depth:38px; --box-rim:21px; --desk:#172e30;
+  --cut-paper:polygon(0 1%,8% .3%,19% .8%,31% 0,43% .6%,58% .2%,73% .8%,88% 0,99.5% .7%,100% 17%,99.5% 34%,100% 51%,99.6% 72%,100% 89%,99.4% 99.5%,87% 99%,74% 100%,60% 99.3%,48% 100%,31% 99.5%,17% 100%,.5% 99.3%,0 85%,.5% 65%,0 46%,.4% 25%);
+  --cut-chip:polygon(5% 1%,28% 3%,48% 0,73% 2%,95% 0,100% 15%,98% 48%,100% 81%,94% 98%,68% 96%,42% 100%,17% 97%,2% 100%,0 77%,2% 49%,0 18%);
+  --paper-fiber:repeating-linear-gradient(112deg,#fffdf71c 0 1px,transparent 1px 4px);
+}
+body {background:radial-gradient(ellipse at 25% 12%,#425758,#1d3537 65%,#12282b);}
+.gift-box {
+  background:#214548; border:1px solid #baa878; border-radius:5px 8px 4px 6px;
+  box-shadow:0 1px 0 #f7e4ad,0 5px 0 #9c8257,0 8px 0 #283b36,0 10px 0 #baa270,7px 18px 25px #07181980,0 30px 65px #081c1d70;
+}
+.gift-box::before {z-index:2;border:1px solid #0e242680;background:none;box-shadow:inset 13px 14px 20px -6px #091d24b3,inset -7px -7px 10px -5px #0005;}
+.box-stage {position:absolute;inset:var(--box-depth);z-index:0;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 35% 40%,#33575a,#193b40 76%);}
+.stage-art {position:absolute;inset:-8px;background-image:url('./assets/tarot-paper-interior.png');background-position:center;background-size:cover;opacity:.94;}
+.stage-cut {position:absolute;inset:12px;border:2px solid #82918a55;border-radius:40% 40% 4px 5px / 6% 6% 4px 5px;box-shadow:0 0 0 7px #54747470,4px 8px 10px #061b2480,inset 1px 2px 0 #d7d4af55;}
+.stage-cut-front {inset:24px 26px 20px;border-color:#c6ba9170;box-shadow:0 0 0 4px #284c50,4px 7px 7px #061a20a6,inset 1px 1px 0 #e7d7b94a;transform:rotate(.17deg);}
+.box-wall {box-shadow:inset 0 0 0 1px #796c45;}
+.wall-top {background:linear-gradient(#d9c395 0,#927751 23%,#746245 50%,#253e3a 100%);}
+.wall-bottom {background:linear-gradient(#102d32,#4b5b50 40%,#c6af7a 81%,#ecdbb2);}
+.wall-left {background:linear-gradient(90deg,#d6c294,#aa9065 45%,#334944);}
+.wall-right {background:linear-gradient(90deg,#173238,#6b7158 60%,#cebb88);}
+.paper-edge {filter:drop-shadow(0 3px 1px #101e2580);}
+.paper-edge::before {
+  background:repeating-linear-gradient(45deg,transparent 0 10px,#b49b6240 10px 11px,transparent 11px 18px),var(--paper-fiber),linear-gradient(#f4e9cb,#d6c293);
+  box-shadow:inset 0 3px 0 #776744,inset 0 4px 0 #f8e6b5,inset 0 6px 0 #aa915c;
+}
+.edge-left::before,.edge-right::before {
+  background:repeating-linear-gradient(-45deg,transparent 0 10px,#b49b6240 10px 11px,transparent 11px 18px),var(--paper-fiber),linear-gradient(90deg,#f4e9cb,#d6c293);
+  box-shadow:inset 3px 0 0 #776744,inset 4px 0 0 #f8e6b5,inset 6px 0 0 #aa915c;
+}
+.gift-box .page-corners {opacity:1;}
+.gift-box .page-corners i {width:31px;height:31px;border:3px double #756640;background:#e7d6ad;box-shadow:2px 3px 3px #18312f77;}
+.gift-box .page-corners i::after {content:'';position:absolute;inset:7px;border:1px solid #998052;transform:rotate(45deg);}
+.gift-box>.masthead {height:91px;margin:7px 3.4% 0;padding:0 20px;border:0;isolation:isolate;filter:drop-shadow(3px 5px 4px #102a2b80);}
+.gift-box>.masthead::before {content:'';position:absolute;inset:7px -7px 5px;z-index:-1;background:var(--paper-fiber),linear-gradient(105deg,#f5ecd6,#e4d5b4);clip-path:var(--cut-paper);}
+.masthead-note {color:var(--muted);}
+.masthead .header-greeting,.masthead .header-greeting:hover {color:var(--muted);}
+.wordmark {color:#334542;}
+.gift-box>main {padding:0 2.3%;scrollbar-color:#c7b68377 transparent;}
+.gift-box .page {padding-left:24px;padding-right:118px;}
+.gift-box .home-page {min-height:560px;padding-top:28px;padding-bottom:18px;}
+.conversation-topline {color:#eee0bb;font-size:12px;letter-spacing:1.2px;padding:0 3px 15px;}
+.conversation-topline .text-button {color:#e9d6a8;}
+.conversation-paper {isolation:isolate;background:transparent;border:0;box-shadow:none;transform:rotate(-.22deg);}
+.paper-depth {position:absolute;inset:0;z-index:-1;pointer-events:none;}
+.paper-layer {position:absolute;inset:0;display:block;filter:drop-shadow(3px 7px 4px #061e2570);}
+.paper-layer::before {content:'';position:absolute;inset:0;clip-path:var(--cut-paper);background:var(--paper-fiber),var(--sheet-color,#f4edda);}
+.layer-back {--sheet-color:#adbbad;transform:translate(9px,9px) rotate(1.1deg);filter:drop-shadow(6px 12px 6px #06171ca6);}
+.layer-middle {--sheet-color:#d5b879;transform:translate(-5px,5px) rotate(-.8deg);}
+.layer-front {--sheet-color:#f4edda;filter:drop-shadow(2px 3px 1px #514b394d);}
+.paper-corner {display:none;}
+.gift-box .home-page .empty-conversation {padding:24px 20px;}
+.empty-conversation h1 {font-size:clamp(33px,3.5vw,47px);line-height:1.04;}
+.welcome-kicker {color:#897a5e;}
+.welcome-star {width:74px;height:66px;margin-bottom:8px;}
+.welcome-star>svg {width:48px;height:57px;fill:#d5b96e;stroke:#907344;stroke-width:.9;filter:url(#paper-cut-icon);}
+.welcome-star i {right:2px;top:2px;color:#ac8341;text-shadow:1px 2px #f9efd4,2px 4px 2px #76664766;}
+.composer {border-color:#c9b792;}
+.gift-box .suggestions {margin-top:24px;gap:10px;}
+.suggestions .hand-note,.conversation-footnote {color:#d7cfb3;}
+.suggestions button {position:relative;isolation:isolate;border:0;border-radius:0;background:transparent;padding:10px 15px;color:#3f514c;filter:drop-shadow(2px 4px 2px #0b282980);font-size:15px;}
+.suggestions button::before {content:'';position:absolute;inset:0;z-index:-1;background:var(--paper-fiber),#e3d8b9;clip-path:var(--cut-chip);}
+.suggestions button:nth-of-type(2)::before {background:var(--paper-fiber),#c2d0c0;}
+.suggestions button:nth-of-type(3)::before {background:var(--paper-fiber),#d8ba81;}
+.suggestions button:hover {background:transparent;transform:translateY(-4px) rotate(-1deg);filter:drop-shadow(4px 8px 3px #0b24298c);}
+.suggestions button:active {transform:translateY(2px);filter:drop-shadow(1px 1px 1px #0b242970);}
+.gift-box>.page-footer {height:40px;color:#e0d1ad;border-color:#ccb97b45;font-size:17px;}
+.demo-label {color:#c9bc98;}
+.gift-box>.star-navigation {right:calc(var(--box-depth) + 17px);gap:26px;}
+.star-nav-line {background:linear-gradient(transparent,#c3ac77aa,transparent);}
+.nav-star {filter:drop-shadow(2px 5px 2px #092326b3);}
+.nav-star>svg,.nav-star:nth-of-type(n)>svg {width:44px;height:48px;fill:#d3b56d;stroke:#8d713d;stroke-width:1;filter:url(#paper-cut-icon);overflow:visible;}
+.nav-star:nth-of-type(2)>svg {fill:#a8bcb2;}
+.nav-star:nth-of-type(3)>svg {fill:#e4cca2;}
+.nav-star:nth-of-type(4)>svg {fill:#bf9c64;}
+.nav-star:hover>svg,.nav-star:focus-visible>svg,.nav-star.active>svg {fill:#f0dba4;stroke:#94713a;transform:translateY(-4px) rotate(78deg) scale(1.08);}
+.nav-star:active {transform:translateY(3px) scale(.96);filter:drop-shadow(1px 2px 1px #09232690);}
+.nav-label {right:76px;background:#ecdfbd;color:#675534;padding:3px 12px;clip-path:var(--cut-chip);font-size:22px;}
+.nav-end {color:#dbc38d;text-shadow:2px 3px 2px #10282bb3;}
+.icon,.greeting-spark,.history-star {filter:url(#paper-cut-icon);overflow:visible;}
+.wordmark .icon {fill:#b6934e;}
+.send-primary,.send-satellite {filter:url(#paper-cut-icon);fill:#e2c37d;stroke:#937342;stroke-width:1;}
+.send-satellite {fill:#ecdebc;}
+.send-button:hover .send-primary {fill:#edcf8d;}
+.gift-box>.page-transition>span {background:#adbdaf;box-shadow:3px 8px 15px #0c272b80;clip-path:var(--cut-paper);}
+.gift-box>.page-transition>span:last-child {background:#e2d0a4;}
+.gift-box>.page-transition>svg {fill:#e5c681;filter:url(#paper-cut-icon);}
+
+/* All working pages sit on cut cardstock; the box stays fixed around them. */
+.gift-box .page:not(.home-page) {position:relative;isolation:isolate;width:calc(100% - 138px);margin:27px 114px 32px 24px;padding:30px 34px;filter:drop-shadow(5px 9px 5px #0c242a80);}
+.gift-box .page:not(.home-page)::before {content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:var(--paper-fiber),var(--paper);clip-path:var(--cut-paper);}
+.subpage-heading h1 {font-size:clamp(40px,4.2vw,60px);}
+.chapter-label,.settings-section-label {font-size:12px;letter-spacing:1.4px;}
+.postcard {border:0;background:transparent;isolation:isolate;box-shadow:none;filter:drop-shadow(3px 6px 3px #56482e55);}
+.postcard::before {content:'';position:absolute;inset:0;z-index:-1;clip-path:var(--cut-paper);background:var(--paper-fiber),#fbf2dc;border:1px solid #aa9875;}
+.postcard.tucked {background:transparent;}
+.postcard.tucked::before {background:var(--paper-fiber),#dfd7bd;}
+.postcard.tucked:nth-child(2n),.postcard.tucked:nth-child(3n) {background:transparent;}
+.postcard.tucked:nth-child(2n)::before {background:var(--paper-fiber),#e5ceb0;}
+.postcard.tucked:nth-child(3n)::before {background:var(--paper-fiber),#c8d1bf;}
+.postcard:hover {box-shadow:none;filter:drop-shadow(6px 11px 5px #4a402e70);}
+.postcard-stamp {background:#dfc88f;box-shadow:2px 3px 0 #aa9570,4px 6px 4px #8d785e50;}
+.history-star {fill:#c4a360;stroke:#947745;}
+.tarot-card {background:transparent;border:0;border-radius:0;isolation:isolate;box-shadow:none;filter:drop-shadow(2px 3px 0 #88724c) drop-shadow(4px 9px 4px #35433b66);}
+.tarot-card::before {content:'';position:absolute;inset:0;z-index:-1;background:var(--paper-fiber),#f0dfb6;clip-path:var(--cut-chip);}
+.tarot-inner {border:1px solid #a78a50;box-shadow:inset 2px 2px 5px #836c3b33,1px 1px 0 #fff5d8;}
+.tarot-item:hover .tarot-card {box-shadow:none;filter:drop-shadow(2px 4px 0 #88724c) drop-shadow(7px 15px 6px #293f3b80);}
+.tarot-item:active .tarot-card {transform:translateY(2px) rotate(0);filter:drop-shadow(2px 3px 1px #52634570);}
+.dormant .tarot-card {background:transparent;border:0;}
+.dormant .tarot-card::before {background:var(--paper-fiber),#2b5052;}
+.dormant .tarot-inner {border-color:#c7b37b;box-shadow:inset 2px 3px 5px #122d3970,1px 1px 0 #59746c;}
+.tarot-back-design>.icon {fill:#d0b477;stroke:#8b764a;}
+.tarot-symbol {background:#f0dfb9;box-shadow:2px 3px 0 #b4a17d,5px 7px 5px #5646283d;text-shadow:1px 1px #fff0c8;border-radius:48% 52% 49% 51%;}
+.tarot-caption>div>span {font-size:14px;}
+.tarot-tag,.tarot-back-label {font-size:10px;letter-spacing:.7px;}
+.tarot-back-subtitle {color:#e5d9b5;}
+.focused-tarot {background:var(--paper-fiber),#eddfbe;box-shadow:2px 3px 0 #a79163,5px 8px 0 -2px #cbba90,8px 17px 18px #263c3860;border-radius:3px 8px 2px 6px;}
+.icon-button {position:relative;isolation:isolate;width:34px;height:34px;padding:7px;color:#6a684e;filter:drop-shadow(1px 2px 0 #b5a17a) drop-shadow(2px 3px 2px #48514340);}
+.icon-button::before {content:'';position:absolute;inset:0;z-index:-1;background:var(--paper-fiber),#e7d9b9;clip-path:var(--cut-chip);}
+.icon-button:hover {transform:translateY(-3px) rotate(-6deg);filter:drop-shadow(2px 4px 0 #b5a17a) drop-shadow(3px 6px 3px #48514350);}
+.icon-button:active {transform:translateY(2px);filter:drop-shadow(1px 1px 0 #b5a17a);}
+.solid-button,.outline-button {position:relative;isolation:isolate;border:0;border-radius:0;background:transparent;filter:drop-shadow(1px 2px 0 #a28b62) drop-shadow(3px 5px 2px #35473f40);}
+.solid-button::before,.outline-button::before {content:'';position:absolute;inset:0;z-index:-1;background:var(--paper-fiber),#e0cca0;clip-path:var(--cut-chip);}
+.solid-button::before {background:var(--paper-fiber),#31575a;}
+.solid-button:hover,.outline-button:hover {background:transparent;filter:drop-shadow(1px 3px 0 #a28b62) drop-shadow(4px 8px 3px #35473f50);}
+.solid-button:active,.outline-button:active {transform:translateY(2px);filter:drop-shadow(1px 1px 0 #a28b62);}
+.library-tabs {gap:13px;flex-wrap:wrap;}
+.library-tabs button {background:#e5d8b8;padding:8px 12px;margin:0;border:0;box-shadow:1px 2px 0 #bba67c,3px 4px 3px #73674930;border-radius:2px 5px 2px 4px;color:#6c694e;}
+.library-tabs button.selected {background:#345857;color:#f4e6c5;box-shadow:1px 2px 0 #1c3b3e,3px 4px 3px #73674940;}
+.library-tabs button:hover {transform:translateY(-2px);}
+.ritual-clock {background:#e6d3a3;box-shadow:2px 3px 0 #b5a27b,5px 8px 5px #72644645;border-radius:49% 51% 47% 53%;}
+.ritual-clock .icon {fill:#d4b46e;}
+.ritual-row {position:relative;isolation:isolate;margin:14px 0;padding:24px 17px;border:0;filter:drop-shadow(2px 4px 2px #6c675a2b);}
+.ritual-row::before {content:'';position:absolute;inset:0;z-index:-1;background:var(--paper-fiber),#e6ddc6;clip-path:var(--cut-paper);}
+.switch {background:#d9caa8;border-color:#ac9974;border-radius:6px 10px 7px 9px;box-shadow:inset 1px 2px 3px #60584430,1px 2px 0 #fff0ce;}
+.switch span {background:#ac9870;border:1px solid #cfbd91;box-shadow:1px 2px 0 #7c714f,2px 3px 2px #35443b55;border-radius:45% 55% 49% 51%;}
+.switch[aria-checked=true] {background:#3d6261;border-color:#385657;}
+.switch[aria-checked=true] span {background:#e5ce90;}
+.identity-card {background:var(--paper-fiber),#e7d3a6;border-color:#a28b58;box-shadow:2px 3px 0 #9a8054,5px 6px 0 -1px #d2bc86,9px 13px 10px #5c5a424f;}
+.identity-avatar,.profile-small-avatar,.avatar-option>span {background:#e0c997;color:#927240;border-color:#b19a67;box-shadow:1px 2px 0 #ab956a,3px 5px 3px #63574340;text-shadow:1px 1px #fff0c8;border-radius:46% 54% 48% 52%;}
+.avatar-option input:checked+span {background:#bdc8b3;box-shadow:1px 3px 0 #7f997f,3px 6px 4px #324b3f40;transform:translateY(-3px) rotate(-8deg);}
+.avatar-option:hover>span {transform:translateY(-3px);}
+.paper-swatch span {box-shadow:2px 2px 0 #b5a078,4px 5px 3px #63574344;border-radius:2px 5px 1px 3px;}
+.profile-form input,.profile-form textarea,.form-dialog input,.form-dialog textarea,.form-dialog select {background:#faf2de;box-shadow:inset 2px 3px 4px #95805c1a,1px 2px 0 #fff6df;border-radius:2px 5px 3px 1px;}
+.detail-dialog {background:var(--paper-fiber),var(--paper);border:5px solid #ccb786;border-radius:4px 9px 3px 7px;box-shadow:0 0 0 1px #6f765c,3px 5px 0 #9b8054,8px 17px 0 -5px #283d3b,15px 30px 70px #081e26a6;}
+.detail-dialog::backdrop {background:#102c35a6;backdrop-filter:blur(5px);}
+.toast {border:2px solid #d8c08c;background:#274d50;color:#f3e5bf;box-shadow:2px 4px 0 #a28a59,5px 9px 15px #07202970;border-radius:3px 6px 2px 5px;}
+.small-aster,.tiny-star,.tarot-corner {text-shadow:-1px -1px #f5e9c9,1px 2px #a08759,2px 4px 2px #394b4166;}
+button:focus-visible,a:focus-visible {outline-color:#cfad63;outline-offset:6px;}
+
+/* Paper can change tone while the cut edges and recessed stage remain legible. */
+:root[data-theme=dusk] {--paper:#e1e4d1;--paper-light:#f1f2df;--ink:#344742;--muted:#6c7662;--line:#afb99a;--star-paper:#d9c99d;}
+:root[data-theme=dusk] .layer-front {--sheet-color:#e2e5d3;}
+:root[data-theme=dusk] .conversation-paper {background:transparent;}
+:root[data-theme=dusk] .gift-box>.masthead::before {background:var(--paper-fiber),linear-gradient(110deg,#e6e7d7,#c0cbb7);}
+
+@media(min-width:1500px) {
+  .gift-box>main {padding:0 3.5%;}
+  .gift-box .home-page {padding-right:120px;}
+}
+@media(max-width:1100px) {
+  :root {--box-depth:31px;}
+  .gift-box>.masthead {margin-left:2.5%;margin-right:2.5%;padding:0 13px;}
+  .gift-box>main {padding:0 1.2%;}
+  .gift-box .page {padding-left:22px;padding-right:96px;}
+  .gift-box>.star-navigation {right:calc(var(--box-depth) + 7px);}
+  .gift-box .page:not(.home-page) {width:calc(100% - 112px);margin-left:18px;margin-right:94px;padding:28px 24px;}
+  .history-layout {gap:22px;}
+  .profile-layout {gap:28px;grid-template-columns:minmax(190px,32%) minmax(0,1fr);}
+  .ritual-row {gap:15px;padding:22px 13px;}
+  .ritual-number {display:none;}
+  .tarot-grid {column-gap:25px;}
+  .tarot-front-title {font-size:22px;}
+}
+@media(max-width:820px) {
+  :root {--box-depth:25px;--box-rim:18px;}
+  .gift-box>.masthead {height:77px;}
+  .gift-box .page {padding-right:88px;}
+  .gift-box .home-page {min-height:580px;}
+  .gift-box .page:not(.home-page) {width:calc(100% - 101px);margin-left:15px;margin-right:86px;padding:26px 22px;}
+  .profile-layout {grid-template-columns:1fr;}
+  .gift-box>.star-navigation {right:calc(var(--box-depth) + 1px);gap:22px;}
+  .nav-star>svg,.nav-star:nth-of-type(n)>svg {width:36px;height:42px;}
+  .gift-box>.page-footer>div {font-size:9px;letter-spacing:1px;}
+  .footer-coordinates {display:none;}
+  .conversation-topline {letter-spacing:.6px;font-size:10px;}
+}
+@media(max-width:580px) {
+  :root {--box-inset:10px;--box-depth:18px;--box-rim:16px;--wordmark-size:30px;}
+  .gift-box {border-radius:4px;}
+  .gift-box>.masthead {height:70px;margin:3px 6px 0;padding:0 7px;gap:7px;filter:drop-shadow(2px 4px 2px #102a2b80);}
+  .gift-box>.masthead::before {inset:6px -4px;}
+  .masthead .header-greeting {font-size:var(--wordmark-size);gap:4px;max-width:57%;}
+  .header-greeting .greeting-spark {display:none;}
+  .wordmark {gap:7px;}
+  .wordmark .icon {width:21px;}
+  .gift-box>main {padding:0 9px;}
+  .gift-box .page {padding:20px 7px 105px;}
+  .gift-box .home-page {min-height:100%;padding-top:21px;padding-bottom:112px;}
+  .gift-box .home-page .conversation-paper {min-height:375px;}
+  .gift-box .home-page .empty-conversation {padding:25px 13px;}
+  .empty-conversation h1 {font-size:34px;}
+  .welcome-note {font-size:16px;}
+  .welcome-kicker {font-size:18px;}
+  .conversation-topline {font-size:9px;letter-spacing:0;gap:7px;}
+  .conversation-topline>span {gap:5px;}
+  .conversation-topline .text-button {font-size:12px;white-space:nowrap;}
+  .conversation-topline .text-button .icon {width:13px;height:13px;}
+  .gift-box .suggestions {gap:9px;margin-top:21px;}
+  .suggestions button {font-size:14px;padding:9px 12px;}
+  .conversation-footnote {font-size:12px;line-height:1.4;}
+  .gift-box>.star-navigation {left:calc(var(--box-depth) + 8px);right:calc(var(--box-depth) + 8px);bottom:calc(var(--box-depth) + 8px);top:auto;transform:none;gap:0;padding:6px 2px;background:var(--paper-fiber),#d9c89e;border:1px solid #a18a58;border-radius:3px 6px 2px 5px;box-shadow:2px 3px 0 #9b8359,0 -8px 16px #18393760,3px 7px 10px #0d242c99;}
+  .nav-star {height:57px;width:58px;filter:drop-shadow(1px 2px 1px #45534455);}
+  .nav-star>svg,.nav-star:nth-of-type(n)>svg {width:27px;height:33px;margin-top:-12px;}
+  .nav-label {top:37px;right:auto;padding:0;color:#4e5a49;background:transparent;clip-path:none;font-size:14px;}
+  .nav-star:hover>svg,.nav-star:focus-visible>svg,.nav-star.active>svg {transform:translateY(-2px) rotate(75deg) scale(1.04);}
+  .gift-box .page-corners i {height:21px;width:21px;border-width:2px;}
+  .gift-box .page-corners i::after {inset:5px;}
+  .stage-cut {inset:7px;}
+  .stage-cut-front {inset:15px 13px;}
+  .stage-art {background-position:58% center;opacity:.7;}
+  .gift-box .page:not(.home-page) {width:calc(100% - 8px);margin:19px 4px 110px;padding:25px 17px;}
+  .chapter-label {font-size:10px;letter-spacing:.5px;}
+  .subpage-top {gap:12px;margin-bottom:28px;}
+  .back-link {font-size:15px;}
+  .subpage-heading h1 {font-size:37px;}
+  .library-tabs {gap:7px;justify-content:flex-start;}
+  .library-tabs button {font-size:14px;padding:7px 9px;}
+  .tarot-grid {gap:28px 18px;}
+  .tarot-card {height:254px;padding:7px;}
+  .tarot-inner {border-radius:45% 45% 3px 3px / 5% 5% 3px 3px;}
+  .tarot-art {height:168px;}
+  .tarot-back-design {width:105px;height:152px;margin-top:15px;}
+  .tarot-front-title {font-size:18px;}
+  .tarot-tag {font-size:8px;letter-spacing:0;}
+  .tarot-back-label {font-size:8px;letter-spacing:.2px;}
+  .tarot-back-subtitle {font-size:14px;padding:0 5px;}
+  .tarot-caption h2 {font-size:20px;}
+  .ritual-row {padding:22px 12px;}
+  .ritual-copy {min-width:140px;}
+  .ritual-time {min-width:62px;font-size:28px;}
+  .ritual-actions {gap:17px;}
+  .detail-dialog {max-width:calc(100vw - 30px);width:calc(100% - 30px);max-height:calc(100dvh - 46px);}
+  .identity-card {height:380px;}
+  .settings-note {font-size:16px;}
+}
+@media(max-width:370px) {
+  .conversation-topline>span {font-size:8px;}
+  .gift-box>.masthead {padding:0 4px;}
+  :root {--wordmark-size:27px;}
+  .gift-box .page:not(.home-page) {padding-left:13px;padding-right:13px;}
+  .tarot-grid {grid-template-columns:1fr;}
+  .tarot-item {max-width:205px;}
+  .tarot-card {height:285px;}
+  .tarot-art {height:194px;}
+  .tarot-back-design {height:180px;}
+}
+@media(max-height:700px) and (min-width:581px) {
+  .gift-box>.masthead {height:71px;}
+  .gift-box>.page-footer {height:32px;}
+  .gift-box>.star-navigation {gap:11px;}
+}

@@ -29,4 +29,6 @@ All state is local to the browser in `aster-demo-v1`. AI replies are samples, pl
 
 Main files: `dist/index.html`, `dist/style.css`, `dist/app.js`. Original generated artwork is in `dist/assets/celestial.png`.
 
+The open tarot-box treatment is in `dist/tarot.css`: fixed box walls, layered cut-cardstock surfaces, ivory cut edges and dimensional icon shadows. The original celestial paper-theatre background is `dist/assets/tarot-paper-interior.png`.
+
 Header lettering uses the locally bundled TeX Gyre Chorus Medium Italic, distributed with its GUST Font License and LPPL notices in `dist/assets/fonts/`.

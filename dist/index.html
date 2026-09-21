@@ -12,10 +12,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Italiana&display=swap" rel="stylesheet" />
   <link rel="preload" href="/assets/fonts/texgyrechorus-mediumitalic.otf" as="font" type="font/otf" crossorigin />
   <link rel="stylesheet" href="/style.css?v=4" />
+  <link rel="stylesheet" href="/tarot.css?v=5" />
   <script src="/app.js?v=4" defer></script>
 </head>
 <body>
   <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <filter id="paper-cut-icon" x="-60%" y="-60%" width="220%" height="240%" color-interpolation-filters="sRGB">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="1.1" result="cut"/>
+      <feFlood flood-color="#f8efd9" result="ivory"/>
+      <feComposite in="ivory" in2="cut" operator="in" result="paper"/>
+      <feFlood flood-color="#8a714b" result="cardstock"/>
+      <feComposite in="cardstock" in2="cut" operator="in" result="edge"/>
+      <feOffset in="edge" dx=".7" dy="1.6" result="thickness"/>
+      <feDropShadow in="thickness" dx="1.2" dy="2.4" stdDeviation="1.1" flood-color="#142c2c" flood-opacity=".45" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="thickness"/><feMergeNode in="paper"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
     <symbol id="star" viewBox="0 0 48 48"><path d="M24 2C26 17 30 21 46 24C30 27 27 31 24 46C21 31 17 27 2 24C17 21 21 17 24 2Z"/><path d="M24 8L24 40M8 24L40 24" opacity=".22"/></symbol>
     <symbol id="arrow" viewBox="0 0 24 24"><path d="M4 12H20M13 5L20 12L13 19"/></symbol>
     <symbol id="plus" viewBox="0 0 24 24"><path d="M12 4V20M4 12H20"/></symbol>
@@ -28,6 +39,7 @@
   </defs></svg>
   <div class="paper-grain" aria-hidden="true"></div>
   <div class="gift-box" id="gift-box">
+    <div class="box-stage" aria-hidden="true"><div class="stage-art"></div><div class="stage-cut stage-cut-back"></div><div class="stage-cut stage-cut-front"></div></div>
     <div class="box-walls" aria-hidden="true"><i class="box-wall wall-top"></i><i class="box-wall wall-right"></i><i class="box-wall wall-bottom"></i><i class="box-wall wall-left"></i></div>
     <div class="paper-rim" aria-hidden="true"><i class="paper-edge edge-top"></i><i class="paper-edge edge-right"></i><i class="paper-edge edge-bottom"></i><i class="paper-edge edge-left"></i></div>
     <div class="page-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
@@ -42,6 +54,7 @@
         <div class="conversation-area">
           <div class="conversation-topline"><span><span class="small-aster">✳</span> A LITTLE ROOM FOR BIG IDEAS</span><button class="text-button" id="new-chat">New conversation <svg class="icon"><use href="#plus"/></svg></button></div>
           <section class="conversation-paper" aria-label="Agent conversation">
+            <div class="paper-depth" aria-hidden="true"><i class="paper-layer layer-back"></i><i class="paper-layer layer-middle"></i><i class="paper-layer layer-front"></i></div>
             <span class="paper-corner top-left" aria-hidden="true"></span><span class="paper-corner bottom-right" aria-hidden="true"></span>
             <div class="empty-conversation" id="empty-conversation"><div class="welcome-star"><svg><use href="#star"/></svg><i>✧</i></div><p class="welcome-kicker">A quiet mind. An open page.</p><h1>Every good thing<br>begins with <em>a thought.</em></h1><p class="welcome-note">Bring your questions, your wild ideas,<br>or just yourself. I’m here.</p></div>
             <div class="messages" id="messages" aria-live="polite" aria-label="Conversation messages"></div>
