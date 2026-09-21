@@ -6,6 +6,7 @@ const escapeHTML = value => String(value).replace(/[&<>"']/g, c=>({'&':'&amp;','
 const defaultData={profile:{name:'Sandman',email:'sandman@example.com',intention:'Make space for good ideas.',avatar:'✧'},settings:{motion:true,sounds:false,enterSend:true,theme:'paper'},plugins:['research','writing'],rituals:[{id:'morning',title:'A softer start',prompt:'Gather my priorities and help me plan a thoughtful day.',time:'08:30',frequency:'Weekdays',enabled:true},{id:'inspiration',title:'A little dose of wonder',prompt:'Find a creative prompt to inspire my next project.',time:'17:00',frequency:'Every day',enabled:false}],conversations:[]};
 let data;try{data={...structuredClone(defaultData),...JSON.parse(localStorage.getItem('aster-demo-v1')||'null')};}catch{data=structuredClone(defaultData);}
 let page='home',transitioning=false,currentChat=null,messages=[],pendingReply=false,attachment=null,pluginFilter='All';
+let disposeSendOrbit=()=>{};
 const homeMarkup=$('#main').innerHTML;
 const pluginLibrary=[
  {id:'research',name:'The Seeker',type:'Skill',number:'I',symbol:'☉',subtitle:'Follow your curiosity.',description:'Turn a question into a thoughtful research journey. Explore ideas, compare perspectives, and collect the threads that matter.',abilities:['Explore a topic','Compare perspectives','Gather a reading list'],tag:'RESEARCH & DISCOVERY'},
@@ -29,9 +30,53 @@ function applyPreferences(){document.documentElement.dataset.theme=data.settings
 function pageHeader(kicker,title,note,action=''){return `<div class="subpage-top"><button class="back-link" data-page="home">${icon('arrow')} Back to your thoughts</button><span class="chapter-label">${kicker}</span></div><div class="subpage-heading"><div><h1>${title}</h1><p>${note}</p></div>${action}</div>`;}
 function navigate(next,{replace=false}={}){if(transitioning||!['home','history','plugins','schedule','settings','profile'].includes(next))return;if(next===page)return;transitioning=true;const transition=$('#page-transition');transition.classList.add('running');const reduced=!data.settings.motion||matchMedia('(prefers-reduced-motion: reduce)').matches;setTimeout(()=>{page=next;if(!replace)history.pushState({page},'',next==='home'?'#home':`#${next}`);renderPage();window.scrollTo({top:0,behavior:'instant'});$('#main').focus({preventScroll:true});},reduced?0:370);setTimeout(()=>{transition.classList.remove('running');transitioning=false;},reduced?20:960);}
 function syncGreeting(){$('#greeting-name').textContent=data.profile.name;$('.header-greeting').setAttribute('aria-label',`Hello, ${data.profile.name}. Manage your profile`);}
-function renderPage(){syncGreeting();const main=$('#main');if(page==='home'){main.innerHTML=homeMarkup;initHome();}else if(page==='history')renderHistory();else if(page==='plugins')renderPlugins();else if(page==='schedule')renderSchedule();else if(page==='settings')renderSettings();else renderProfile();$$('.nav-star').forEach(el=>{el.classList.toggle('active',el.dataset.page===page);if(el.dataset.page===page)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});}
-function initHome(){$('#celestial-art').innerHTML='<img src="/assets/celestial.png" alt="A pencil-drawn constellation of orbits, tiny stars, and golden celestial bodies" />';$('#chat-form').addEventListener('submit',e=>{e.preventDefault();sendMessage();});$('#message-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&data.settings.enterSend&&!e.isComposing){e.preventDefault();sendMessage();}});$('#message-input').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,100)+'px';});$('#file-input').addEventListener('change',readAttachment);renderMessages();}
-function renderMessages(){if(page!=='home')return;const paper=$('.conversation-paper');paper.classList.toggle('has-messages',messages.length>0||pendingReply);$('#messages').innerHTML=messages.map(m=>`<div class="message ${m.role}"><div class="message-label">${m.role==='user'?escapeHTML(data.profile.name).toUpperCase():'✧ ASTER'}</div><p>${escapeHTML(m.text)}</p></div>`).join('')+(pendingReply?'<div class="message typing"><div class="message-label">✧ ASTER</div><p aria-label="Aster is composing">···</p></div>':'');$('#messages').scrollTop=$('#messages').scrollHeight;$('.send-button').disabled=pendingReply;$('#attachment-label').textContent=attachment?attachment.name:'';}
+function renderPage(){disposeSendOrbit();syncGreeting();const main=$('#main');if(page==='home'){main.innerHTML=homeMarkup;initHome();}else if(page==='history')renderHistory();else if(page==='plugins')renderPlugins();else if(page==='schedule')renderSchedule();else if(page==='settings')renderSettings();else renderProfile();$$('.nav-star').forEach(el=>{el.classList.toggle('active',el.dataset.page===page);if(el.dataset.page===page)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});}
+function initHome(){disposeSendOrbit=mountSendOrbit($('.send-button'));$('#chat-form').addEventListener('submit',e=>{e.preventDefault();sendMessage();});$('#message-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&data.settings.enterSend&&!e.isComposing){e.preventDefault();sendMessage();}});$('#message-input').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,100)+'px';});$('#file-input').addEventListener('change',readAttachment);renderMessages();}
+// Two satellite layers share one trajectory; the solid center star occludes the far layer.
+function getSendOrbitFrame(phase){
+ const tilt=-25*Math.PI/180;
+ const longAxis=28*Math.cos(phase), shortAxis=8*Math.sin(phase);
+ return {
+  x:38+longAxis*Math.cos(tilt)-shortAxis*Math.sin(tilt),
+  y:31+longAxis*Math.sin(tilt)+shortAxis*Math.cos(tilt),
+  scale:1+.14*Math.sin(phase),
+  front:Math.sin(phase)>=0
+ };
+}
+function mountSendOrbit(button){
+ const back=$('.send-satellite-back',button),front=$('.send-satellite-front',button);
+ const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+ let frame=0,lastTime=0,phase=-.2,hovered=false,disposed=false;
+ const paint=()=>{
+  const point=getSendOrbitFrame(phase);
+  const transform=`translate(${point.x.toFixed(3)} ${point.y.toFixed(3)}) scale(${point.scale.toFixed(3)})`;
+  back.setAttribute('transform',transform);front.setAttribute('transform',transform);
+  back.setAttribute('opacity',point.front?'0':'1');front.setAttribute('opacity',point.front?'1':'0');
+ };
+ const wantsMotion=()=>!disposed&&!button.disabled&&!reducedMotion.matches&&data.settings.motion&&(hovered||button.matches(':focus-visible'));
+ const stop=()=>{cancelAnimationFrame(frame);frame=0;lastTime=0;};
+ const tick=time=>{
+  frame=0;
+  if(!button.isConnected||!wantsMotion()){lastTime=0;return;}
+  if(lastTime)phase=(phase+Math.min(time-lastTime,50)*Math.PI*2/2400)%(Math.PI*2);
+  lastTime=time;paint();frame=requestAnimationFrame(tick);
+ };
+ const sync=()=>{if(wantsMotion()){if(!frame)frame=requestAnimationFrame(tick);}else stop();};
+ const enter=()=>{hovered=true;sync();};
+ const leave=()=>{hovered=false;sync();};
+ button.addEventListener('pointerenter',enter);button.addEventListener('pointerleave',leave);
+ button.addEventListener('focus',sync);button.addEventListener('blur',sync);
+ button.addEventListener('aster:send-state',sync);
+ reducedMotion.addEventListener('change',sync);paint();
+ return ()=>{
+  disposed=true;stop();
+  button.removeEventListener('pointerenter',enter);button.removeEventListener('pointerleave',leave);
+  button.removeEventListener('focus',sync);button.removeEventListener('blur',sync);
+  button.removeEventListener('aster:send-state',sync);
+  reducedMotion.removeEventListener('change',sync);
+ };
+}
+function renderMessages(){if(page!=='home')return;const paper=$('.conversation-paper');paper.classList.toggle('has-messages',messages.length>0||pendingReply);$('#messages').innerHTML=messages.map(m=>`<div class="message ${m.role}"><div class="message-label">${m.role==='user'?escapeHTML(data.profile.name).toUpperCase():'✧ ASTER'}</div><p>${escapeHTML(m.text)}</p></div>`).join('')+(pendingReply?'<div class="message typing"><div class="message-label">✧ ASTER</div><p aria-label="Aster is composing">···</p></div>':'');$('#messages').scrollTop=$('#messages').scrollHeight;const sendButton=$('.send-button');sendButton.disabled=pendingReply;sendButton.dispatchEvent(new Event('aster:send-state'));$('#attachment-label').textContent=attachment?attachment.name:'';}
 function generateReply(text){const clean=text.toLowerCase();if(/[\u4e00-\u9fff]/.test(text))return '让我们给这个想法留一点空间。\n\n你可以先写下最想实现的一件事，再把它拆成今天就能开始的小步骤。一个问题、一页草稿、五分钟的尝试，都可以成为起点。\n\n你希望先从灵感、计划，还是整理思路开始？\n\n（这是本地演示回复，尚未连接真实 AI 服务。）';if(/[\u3040-\u30ff]/.test(text))return 'そのアイデアを、小さな一歩から育ててみましょう。まず、今日できることをひとつ書き出してみてください。\n\nこれはローカルデモのサンプル応答です。AI サービスには接続していません。';if(/\b(hola|español|gracias|ayuda)\b/.test(clean))return 'Demos un poco de espacio a esa idea. Empieza con una pregunta, una página en blanco y un pequeño paso que puedas dar hoy. ¿Qué te gustaría explorar primero?\n\nEsta es una respuesta de muestra del demo local; no hay un servicio de IA conectado.';if(/\b(bonjour|français|merci)\b/.test(clean))return 'Laissons un peu de place à cette idée. Une question, une page blanche et un petit pas suffisent pour commencer. Que souhaitez-vous explorer ?\n\nCeci est une réponse de démonstration locale, sans service IA connecté.';const suffix='\n\nA little note: this is a sample conversation in the local demo. A live AI service can be connected later.';if(/creative|unexpected|dream|idea|inspir/.test(clean))return 'Here’s a little spark: make a field guide to things that don’t have one.\n\nThe sounds of your neighborhood. The colors of a particular Tuesday. The unfinished ideas in your notebook. Choose one, collect five small observations, and turn them into a tiny zine or a visual story.\n\nWhat are you feeling curious about today?'+suffix;if(/plan|day|morning|schedule/.test(clean))return 'Let’s give your day a little room to breathe.\n\n1. Choose one thing that would make today feel meaningful.\n2. Give it a small, uninterrupted pocket of time.\n3. Leave space for a walk, a surprise, or doing nothing at all.\n\nWhat is the one thing you’d like to make room for?'+suffix;if(/tangled|untangle|clear|thought/.test(clean))return 'Put the whole tangle on the page. It doesn’t need to make sense yet.\n\nThen we can look for three threads: what you know, what you’re wondering, and what you can try next. Often, a thought only needs a little space to become a direction.\n\nWhat has been on your mind?'+suffix;return 'A thought worth sitting with. Let’s explore it a little.\n\nWhat would you like to come away with: a fresh perspective, a first draft, or a small next step? We can start wherever feels right.'+suffix;}
 function persistChat(){if(!currentChat||!messages.length)return;const entry={id:currentChat,title:messages.find(m=>m.role==='user')?.text.slice(0,68)||'A new thought',date:new Date().toISOString(),category:'YOUR CONVERSATION',excerpt:messages.filter(m=>m.role==='assistant').at(-1)?.text.slice(0,170)||'A new conversation is beginning.',messages:structuredClone(messages)};data.conversations=data.conversations.filter(c=>c.id!==currentChat);data.conversations.unshift(entry);save();}
 function sendMessage(){const input=$('#message-input');if(pendingReply)return;let text=input.value.trim();if(!text&&!attachment){input.focus();return;}if(attachment){text+=(text?'\n\n':'')+`[${attachment.name}]\n${attachment.text.slice(0,3000)}`;attachment=null;}if(!currentChat)currentChat='chat-'+Date.now();messages.push({role:'user',text});input.value='';input.style.height='auto';pendingReply=true;renderMessages();persistChat();setTimeout(()=>{messages.push({role:'assistant',text:generateReply(text)});pendingReply=false;persistChat();renderMessages();},950);}

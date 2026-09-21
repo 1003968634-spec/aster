@@ -28,3 +28,5 @@ Open http://localhost:4173.
 All state is local to the browser in `aster-demo-v1`. AI replies are samples, plugin connections are simulated, and schedules do not execute background jobs. No accounts, API keys, or real integrations are required.
 
 Main files: `dist/index.html`, `dist/style.css`, `dist/app.js`. Original generated artwork is in `dist/assets/celestial.png`.
+
+Header lettering uses the locally bundled TeX Gyre Chorus Medium Italic, distributed with its GUST Font License and LPPL notices in `dist/assets/fonts/`.
