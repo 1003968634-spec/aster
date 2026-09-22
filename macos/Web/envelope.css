@@ -10,7 +10,7 @@ body > .gift-box, body > .watercolor-backdrop, body > .paper-grain { visibility:
 }
 .desktop-envelope {
   position:fixed;left:50%;top:50%;width:var(--envelope-width);height:var(--envelope-height);
-  transform:translate(-50%,-48%) rotate(-1.5deg);isolation:isolate;perspective:1800px;
+  transform:translate(-50%,-48%) rotate(-1.5deg);isolation:isolate;
   color:#827253;cursor:grab;user-select:none;z-index:1;
   filter:drop-shadow(1px 2px 0 #a89b803e) drop-shadow(0 16px 17px #29261f35);
   transition:top .9s cubic-bezier(.22,.7,.24,1),width .9s cubic-bezier(.22,.7,.24,1),height .9s cubic-bezier(.22,.7,.24,1),transform .9s cubic-bezier(.22,.7,.24,1);
@@ -29,7 +29,7 @@ body > .gift-box, body > .watercolor-backdrop, body > .paper-grain { visibility:
 .envelope-pocket {z-index:3;filter:drop-shadow(0 -1px .8px #8273564d);}
 .envelope-pocket::before {content:'';position:absolute;inset:0;background:var(--envelope-paper),linear-gradient(155deg,#f1eadb 15%,#ece2c8 76%,#dcd0b4);clip-path:polygon(.4% 99.3%,.2% 98%,47% 47%,50% 46%,53% 47%,99.6% 98%,99.5% 99.1%,85% 99.8%,67% 99.5%,50% 100%,31% 99.5%,13% 99.8%);}
 .envelope-pocket::after {content:'';position:absolute;inset:0;background:url('./assets/watercolor-canvas.png') center 70%/100% 180%;opacity:.18;mix-blend-mode:multiply;clip-path:polygon(.4% 99.3%,.2% 98%,47% 47%,50% 46%,53% 47%,99.6% 98%,99.5% 99.1%,85% 99.8%,67% 99.5%,50% 100%,31% 99.5%,13% 99.8%);}
-.envelope-flap {z-index:4;transform-origin:center .5%;transform-style:preserve-3d;filter:drop-shadow(0 4px 2px #8d7b5b44);transition:transform .85s cubic-bezier(.4,0,.15,1),filter .7s;}
+.envelope-flap {z-index:4;transform-origin:center .5%;filter:drop-shadow(0 4px 2px #8d7b5b44);transition:transform .72s cubic-bezier(.4,0,.15,1),filter .7s;}
 .envelope-flap-paper {position:absolute;inset:0;clip-path:polygon(.25% .6%,12% .3%,26% .6%,42% .2%,60% .5%,75% .1%,88% .6%,99.6% .4%,55% 55.3%,53% 57%,50% 58%,47% 57%,45% 55.3%);background:var(--envelope-paper),linear-gradient(160deg,#f7f1e2,#f0e5cc 74%,#e4d7b8);}
 .envelope-flap-paper::before {content:'';position:absolute;inset:0;background:url('./assets/watercolor-canvas.png') center/100% 100%;opacity:.22;mix-blend-mode:multiply;}
 .envelope-flap-paper::after {content:'';position:absolute;inset:5px 12px 0;clip-path:polygon(0 0,100% 0,50% 54%);background:linear-gradient(178deg,#d2bd9225,transparent 6%);}
@@ -105,17 +105,7 @@ body > .gift-box, body > .watercolor-backdrop, body > .paper-grain { visibility:
 #desktop-fold:hover {transform:translateY(-2px) rotate(1deg);color:#6c644d;}
 #desktop-fold:active {transform:translateY(1px);}
 
-:root:is([data-envelope="opening"],[data-envelope="open"]) .desktop-envelope {top:calc(100% - 167px);width:calc(100vw - 84px);height:260px;transform:translate(-50%,-50%) rotate(.65deg);}
-:root:is([data-envelope="opening"],[data-envelope="open"]) .envelope-flap {transform:rotateX(180deg);filter:drop-shadow(0 -2px 1px #8d7b5b22);}
-:root:is([data-envelope="opening"],[data-envelope="open"]) :is(.envelope-address,.envelope-postmark,.envelope-open-hint) {opacity:0;}
-:root:is([data-envelope="opening"],[data-envelope="open"]) .envelope-seal {opacity:0;transform:translate(15px,42px) rotate(21deg) scale(.7);pointer-events:none;}
-:root:is([data-envelope="opening"],[data-envelope="open"]) #desktop-paper {opacity:1;visibility:visible;transform:translate3d(0,0,0) scale(1) rotate(0);transition-delay:.22s,.26s,0s;}
 :root[data-envelope="open"] #desktop-paper {pointer-events:auto;}
-:root:is([data-envelope="opening"],[data-envelope="open"]) .desktop-chrome {left:49px;top:21px;transform:rotate(0);}
-:root:is([data-envelope="opening"],[data-envelope="open"]) .desktop-top-drag {display:block;}
-:root[data-envelope="folding"] #desktop-paper {transform:translate3d(0,145px,0) scale(.59,.54) rotate(-1.5deg);transition-duration:.65s,.35s,0s;transition-delay:0s,0s,.65s;}
-:root[data-envelope="folding"] .envelope-flap {transition-delay:.17s;}
-:root[data-envelope="folding"] .envelope-seal {transition-delay:.55s;}
 
 @media(max-height:760px) {
   #desktop-paper {inset:54px 28px 71px;}
@@ -132,7 +122,6 @@ body > .gift-box, body > .watercolor-backdrop, body > .paper-grain { visibility:
   #desktop-paper .conversation-footnote {margin-top:11px;font-size:11px;}
   #desktop-paper .gift-box>.page-footer {height:28px;}
   #desktop-paper .gift-box>.star-navigation {gap:14px;}
-  :root:is([data-envelope="opening"],[data-envelope="open"]) .desktop-envelope {top:calc(100% - 145px);height:234px;}
 }
 @media(max-width:1050px) {
   #desktop-paper .masthead-note {display:none;}

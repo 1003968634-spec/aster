@@ -56,9 +56,12 @@
   let state = 'sealed';
   let previousFocus = null;
   let transitionID = 0;
+  const pause = duration => new Promise(resolve => window.setTimeout(resolve, duration));
   const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches || root.classList.contains('reduce-motion');
   const setState = value => { state = value; root.dataset.envelope = value; };
+  const setStage = value => { root.dataset.envelopeStage = value; };
   setState('sealed');
+  setStage('sealed');
   root.classList.add('aster-desktop');
 
   function syncRecipient() {
@@ -68,48 +71,69 @@
     if (stampDate) stampDate.textContent = new Intl.DateTimeFormat('en-GB', { day:'2-digit', month:'short', year:'numeric' }).format(new Date());
   }
 
-  function open() {
+  async function open() {
     if (state !== 'sealed') return;
     syncRecipient();
     const token = ++transitionID;
     seal.disabled = true;
-    const delivery = window.asterPostage?.deliver?.({ reduced: reduced() });
+    const quiet = reduced();
     cover.setAttribute('aria-hidden', 'true');
     setState('opening');
+    setStage('collecting');
+    const delivery = window.asterPostage?.deliver?.({ reduced: quiet });
     bridge('opened');
-    Promise.all([delivery, new Promise(resolve => window.setTimeout(resolve, reduced() ? 20 : 1450))]).then(() => {
-      if (token !== transitionID) return;
-      setState('open');
-      paper.inert = false;
-      paper.removeAttribute('aria-hidden');
-      fold.hidden = false;
-      const destination = previousFocus?.isConnected && paper.contains(previousFocus)
-        ? previousFocus
-        : document.getElementById('message-input') || document.getElementById('main');
-      destination?.focus({ preventScroll: true });
-    });
+    // Give the star time to reach and peel the stamp before the flap moves.
+    await pause(quiet ? 0 : 500);
+    if (token !== transitionID) return;
+    setStage('unfolding');
+    await pause(quiet ? 0 : 330);
+    if (token !== transitionID) return;
+    setStage('extracting');
+    await Promise.all([delivery, pause(quiet ? 20 : 820)]);
+    if (token !== transitionID) return;
+    setStage('open');
+    setState('open');
+    paper.inert = false;
+    paper.removeAttribute('aria-hidden');
+    fold.hidden = false;
+    const destination = previousFocus?.isConnected && paper.contains(previousFocus)
+      ? previousFocus
+      : document.getElementById('message-input') || document.getElementById('main');
+    destination?.focus({ preventScroll: true });
   }
 
-  function closeLetter() {
+  async function closeLetter() {
     if (state !== 'open') return;
     previousFocus = document.activeElement;
     const dialog = document.getElementById('detail-dialog');
     if (dialog?.open) dialog.close();
     const token = ++transitionID;
-    window.asterPostage?.returnToEnvelope?.({ reduced: reduced() });
+    const quiet = reduced();
     fold.hidden = true;
     paper.inert = true;
     paper.setAttribute('aria-hidden', 'true');
     syncRecipient();
     setState('folding');
-    window.setTimeout(() => {
-      if (token !== transitionID) return;
-      setState('sealed');
-      cover.removeAttribute('aria-hidden');
-      seal.disabled = false;
-      seal.focus({ preventScroll: true });
-      bridge('sealed');
-    }, reduced() ? 20 : 850);
+    setStage('collecting');
+    const delivery = window.asterPostage?.returnToEnvelope?.({ reduced: quiet });
+    // Lift the stamp, put the sheet away, then close the still-opaque flap.
+    await pause(quiet ? 0 : 280);
+    if (token !== transitionID) return;
+    setStage('stowing');
+    await pause(quiet ? 0 : 670);
+    if (token !== transitionID) return;
+    setStage('closing');
+    await pause(quiet ? 0 : 750);
+    if (token !== transitionID) return;
+    setStage('settling');
+    await Promise.all([delivery, pause(quiet ? 20 : 200)]);
+    if (token !== transitionID) return;
+    setStage('sealed');
+    setState('sealed');
+    cover.removeAttribute('aria-hidden');
+    seal.disabled = false;
+    seal.focus({ preventScroll: true });
+    bridge('sealed');
   }
 
   seal.addEventListener('click', open);

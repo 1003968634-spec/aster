@@ -41,8 +41,8 @@ cat > "$APP_CONTENTS/Info.plist" <<PLIST
   <key>CFBundleName</key><string>Aster</string>
   <key>CFBundleDisplayName</key><string>Aster</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>0.3.0</string>
-  <key>CFBundleVersion</key><string>3</string>
+  <key>CFBundleShortVersionString</key><string>0.4.0</string>
+  <key>CFBundleVersion</key><string>4</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>NSPrincipalClass</key><string>NSApplication</string>
@@ -56,11 +56,11 @@ if [ "$MODE" = "--debug" ]; then
   /usr/bin/open -n "$APP_BUNDLE"
   exec lldb -n Aster
 fi
-OPEN_ARGS=()
 if [ -n "${ASTER_SMOKE_REPORT:-}" ]; then
-  OPEN_ARGS=(--args --smoke-report "$ASTER_SMOKE_REPORT")
+  /usr/bin/open -n "$APP_BUNDLE" --args --smoke-report "$ASTER_SMOKE_REPORT"
+else
+  /usr/bin/open -n "$APP_BUNDLE"
 fi
-/usr/bin/open -n "$APP_BUNDLE" "${OPEN_ARGS[@]}"
 sleep 1
 pgrep -x Aster | tail -1 > "$PACKAGE_DIR/dist/aster.pid"
 case "$MODE" in

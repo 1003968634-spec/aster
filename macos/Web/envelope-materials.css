@@ -8,18 +8,21 @@
   transform:translate(-50%,-46%) rotate(-1.2deg);
   filter:drop-shadow(1px 3px 1px #4b361f28) drop-shadow(3px 16px 13px #3c2d2240);
 }
-.envelope-back {z-index:2;background:none;clip-path:none;}
+.envelope-back {
+  z-index:2;background:none;
+  clip-path:polygon(0 0,0 100%,100% 100%,100% 0,99.8% 6%,99.2% 10%,97% 15%,59% 68%,55% 71%,52% 72.4%,48% 72.4%,45% 71%,41% 68%,4% 17%,1.5% 12%,.3% 6%);
+}
 .envelope-photo {
   position:absolute;max-width:none;width:106.52%;height:125.49%;
   left:-3.467%;top:-12.745%;display:block;pointer-events:none;user-select:none;
 }
 .envelope-lining {
-  inset:2px;z-index:0;clip-path:var(--letter-edge);opacity:0;
+  inset:2px;z-index:0;clip-path:var(--letter-edge);opacity:1;
   background:#d5c6a6 url('./assets/letter-paper-real.png') center/cover;
-  box-shadow:inset 0 20px 35px #6d533b55;transition:opacity .3s;
+  box-shadow:inset 0 20px 35px #6d533b55;
 }
 .envelope-lining::before,.envelope-lining::after {content:none;}
-.envelope-flap {z-index:3;transform-origin:50% 0;filter:none;visibility:hidden;}
+.envelope-flap {z-index:3;transform-origin:50% 0;filter:none;visibility:visible;}
 .envelope-flap-paper {clip-path:var(--flap-contour);background:none;}
 .envelope-flap-paper::before,.envelope-flap-paper::after {content:none;}
 .envelope-address {
@@ -73,25 +76,8 @@
 .postmark-date {font-style:normal;font-size:9px;letter-spacing:0;}
 .envelope-cancellation span:last-child {font-size:15px;line-height:10px;}
 
-/* The folded paper uses the same photographed surface throughout the opening. */
-:root:is([data-envelope="opening"],[data-envelope="open"]) .desktop-envelope {
-  width:calc(100vw - 84px);height:calc((100vw - 84px) * .566);
-  top:calc(100% - (100vw - 84px) * .283 - 28px);
-}
-:root:is([data-envelope="opening"],[data-envelope="open"]) .envelope-back {
-  clip-path:polygon(0 0,0 100%,100% 100%,100% 0,99.8% 6%,99.2% 10%,97% 15%,59% 68%,55% 71%,52% 72.4%,48% 72.4%,45% 71%,41% 68%,4% 17%,1.5% 12%,.3% 6%);
-}
-:root:is([data-envelope="opening"],[data-envelope="open"],[data-envelope="folding"]) .envelope-flap {visibility:visible;}
-:root:is([data-envelope="opening"],[data-envelope="open"]) .envelope-lining {opacity:1;}
-:root:is([data-envelope="opening"],[data-envelope="open"]) :is(.envelope-stamp,.envelope-cancellation) {opacity:0;}
-:root:is([data-envelope="opening"],[data-envelope="open"]) .envelope-stamp {transform:translateY(-30px) rotate(7deg) scaleY(.6);}
-:root:is([data-envelope="opening"],[data-envelope="open"]) .envelope-flap {
-  transform:rotateX(180deg) scaleY(.35);
-  filter:drop-shadow(0 2px 1px #58452f28);
-}
-:root[data-envelope="folding"] .envelope-back {
-  clip-path:polygon(0 0,0 100%,100% 100%,100% 0,99.8% 6%,99.2% 10%,97% 15%,59% 68%,55% 71%,52% 72.4%,48% 72.4%,45% 71%,41% 68%,4% 17%,1.5% 12%,.3% 6%);
-}
+/* The pocket, lining and flap remain the same opaque sheets in both directions.
+   Their choreography is defined together in postage.css. */
 .desktop-chrome::before,#desktop-fold::before {background:#f0e8d6 url('./assets/letter-paper-real.png') center/cover;}
 @media(max-width:1020px) {
   .envelope-stamp {width:111px;height:112px;}

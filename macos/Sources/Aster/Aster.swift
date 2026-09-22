@@ -56,6 +56,7 @@ final class AsterAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
     private var webRoot: URL!
     private var unzoomedFrame: NSRect?
     private var smokeReportWritten = false
+    private var filePickerPresented = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         installMenus()
@@ -169,6 +170,10 @@ final class AsterAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
         case "minimize": minimizeWindow(nil)
         case "zoom": zoomWindow(nil)
         case "drag": window.beginPaperDrag()
+        case "chooseWorkspaces":
+            guard let requestID = payload["requestId"] as? String,
+                  !requestID.isEmpty, requestID.count <= 256 else { return }
+            chooseWorkspaces(requestID: requestID)
         case "opened", "sealed":
             window.title = action == "opened" ? "Aster — Your paper universe" : "Aster — A letter for your thoughts"
             appLog.info("Envelope state: \(action, privacy: .public)")
@@ -183,6 +188,45 @@ final class AsterAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
         guard url.isFileURL, let webRoot else { return false }
         let path = url.standardizedFileURL.path
         return path == webRoot.path || path.hasPrefix(webRoot.path + "/")
+    }
+
+    /// The chooser returns names and paths only. Selecting a workspace does not
+    /// enumerate its contents, execute commands, or change filesystem access.
+    private func chooseWorkspaces(requestID: String) {
+        guard !filePickerPresented, window.attachedSheet == nil else {
+            reportWorkspaces(requestID: requestID, items: [], cancelled: true)
+            return
+        }
+        filePickerPresented = true
+        let panel = NSOpenPanel()
+        panel.title = "Choose workspaces"
+        panel.prompt = "Add workspaces"
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = true
+        panel.canCreateDirectories = false
+        panel.beginSheetModal(for: window) { [weak self] response in
+            guard let self else { return }
+            self.filePickerPresented = false
+            var seen = Set<String>()
+            let items: [[String: String]] = response == .OK ? panel.urls.compactMap { selected in
+                let url = selected.standardizedFileURL
+                guard url.isFileURL, seen.insert(url.path).inserted else { return nil }
+                return ["path": url.path, "name": url.lastPathComponent.isEmpty ? url.path : url.lastPathComponent]
+            } : []
+            self.reportWorkspaces(requestID: requestID, items: items, cancelled: response != .OK)
+        }
+    }
+
+    private func reportWorkspaces(requestID: String, items: [[String: String]], cancelled: Bool) {
+        let detail: [String: Any] = ["requestId": requestID, "items": items, "cancelled": cancelled]
+        guard let data = try? JSONSerialization.data(withJSONObject: detail),
+              let json = String(data: data, encoding: .utf8) else { return }
+        // Only serialized data is embedded in the fixed event-delivery script.
+        let escaped = json.replacingOccurrences(of: "\u{2028}", with: "\\u2028")
+            .replacingOccurrences(of: "\u{2029}", with: "\\u2029")
+        webView.evaluateJavaScript("window.dispatchEvent(new CustomEvent('aster-workspaces-picked', {detail: \(escaped)}));",
+                                   completionHandler: nil)
     }
 
     @objc private func closeWindow(_ sender: Any?) { window.close() }
@@ -275,11 +319,17 @@ final class AsterAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
 
     func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {
+        guard !filePickerPresented, window.attachedSheet == nil else {
+            completionHandler(nil)
+            return
+        }
+        filePickerPresented = true
         let panel = NSOpenPanel()
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
         panel.allowsMultipleSelection = parameters.allowsMultipleSelection
-        panel.beginSheetModal(for: window) { response in
+        panel.beginSheetModal(for: window) { [weak self] response in
+            self?.filePickerPresented = false
             completionHandler(response == .OK ? panel.urls : nil)
         }
     }
