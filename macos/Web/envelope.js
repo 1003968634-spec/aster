@@ -73,10 +73,11 @@
     syncRecipient();
     const token = ++transitionID;
     seal.disabled = true;
+    const delivery = window.asterPostage?.deliver?.({ reduced: reduced() });
     cover.setAttribute('aria-hidden', 'true');
     setState('opening');
     bridge('opened');
-    window.setTimeout(() => {
+    Promise.all([delivery, new Promise(resolve => window.setTimeout(resolve, reduced() ? 20 : 1450))]).then(() => {
       if (token !== transitionID) return;
       setState('open');
       paper.inert = false;
@@ -86,7 +87,7 @@
         ? previousFocus
         : document.getElementById('message-input') || document.getElementById('main');
       destination?.focus({ preventScroll: true });
-    }, reduced() ? 20 : 1100);
+    });
   }
 
   function closeLetter() {
@@ -95,6 +96,7 @@
     const dialog = document.getElementById('detail-dialog');
     if (dialog?.open) dialog.close();
     const token = ++transitionID;
+    window.asterPostage?.returnToEnvelope?.({ reduced: reduced() });
     fold.hidden = true;
     paper.inert = true;
     paper.setAttribute('aria-hidden', 'true');

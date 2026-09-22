@@ -1,0 +1,80 @@
+/* One paper stamp travels from the envelope to its permanent home control. */
+:root {
+  --letter-top:104px;
+  --letter-side:34px;
+  --letter-bottom:74px;
+  --open-envelope-width:min(calc(100vw - 84px),calc((100vh - 76px) / .7094244));
+  --open-envelope-height:calc(var(--open-envelope-width) * .566);
+}
+#desktop-paper,.detail-dialog::backdrop {inset:var(--letter-top) var(--letter-side) var(--letter-bottom);}
+.detail-dialog {inset:var(--letter-top) var(--letter-side) var(--letter-bottom);margin:auto;max-height:calc(100vh - var(--letter-top) - var(--letter-bottom) - 28px);}
+:root:is([data-envelope="opening"],[data-envelope="open"]) .desktop-envelope {
+  width:var(--open-envelope-width);
+  height:var(--open-envelope-height);
+  top:calc(100vh - 30px - var(--open-envelope-height) / 2);
+  transform:translate(-50%,-50%) rotate(.65deg);
+}
+#desktop-paper .gift-box>.masthead {justify-content:space-between;height:100px;gap:25px;}
+#desktop-paper .masthead .header-greeting {
+  margin-left:0;margin-right:auto;max-width:calc(100% - 125px);
+  padding-top:2px;justify-content:flex-start;
+}
+#desktop-paper .masthead .header-greeting .greeting-spark {display:none;}
+#desktop-paper .gift-box .home-page {min-height:395px;padding-top:6px;}
+#desktop-paper .conversation-topline {justify-content:flex-end;margin-bottom:13px;}
+#desktop-paper .gift-box>.page-footer {justify-content:flex-end;height:28px;}
+#desktop-paper .gift-box .suggestions {margin-top:17px;}
+
+.home-postage {
+  width:93px;height:96px;flex:0 0 93px;padding:0;position:relative;
+  margin:-7px 10px 3px 0;border:0;background:none;
+  transform:rotate(5deg);filter:drop-shadow(1px 2px 1px #493d2d55);
+  visibility:hidden;pointer-events:none;transition:transform .25s,filter .25s;
+}
+.home-postage .stamp-paper {padding:11px 9px 9px;}
+.home-postage .stamp-paper img {width:75px;height:auto;}
+.home-postage .stamp-caption {font-size:5.8px;letter-spacing:.6px;}
+.home-postage .stamp-value {font-size:6.3px;letter-spacing:.8px;}
+.home-postage .stamp-paper::after {inset:9px 7px;}
+:root.postage-delivered .home-postage {visibility:visible;pointer-events:auto;}
+.home-postage:hover {transform:translateY(-3px) rotate(1deg);filter:drop-shadow(2px 5px 3px #493d2d55);}
+.home-postage:active {transform:translateY(1px) rotate(3deg);}
+.home-postage:focus-visible {outline:1px solid #7e7564;outline-offset:6px;}
+.home-postage::after {
+  content:'Back to conversation';position:absolute;right:-10px;top:calc(100% + 7px);
+  padding:3px 7px;white-space:nowrap;font:17px var(--hand);color:#766950;
+  background:#fbf6e8;box-shadow:0 2px 5px #3c30211c;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.home-postage:hover::after,.home-postage:focus-visible::after {opacity:1;}
+.postage-flight {position:fixed;inset:0;z-index:75;pointer-events:none;}
+.flying-stamp {
+  position:absolute;left:0;top:0;transform-origin:50% 50%;
+  filter:drop-shadow(3px 8px 5px #493d2d40);will-change:transform;
+}
+.flying-stamp .stamp-paper {width:100%;}
+.postal-star {
+  position:absolute;width:57px;height:65px;left:0;top:0;overflow:visible;
+  fill:#c2a157;stroke:#8f743e;stroke-width:.8;
+  filter:url(#paper-cut-icon);will-change:transform;transform-origin:50% 50%;
+}
+.postage-flight [hidden] {display:none;}
+@media(max-height:760px) {
+  :root {--letter-top:88px;--letter-side:28px;--letter-bottom:62px;}
+  #desktop-paper .gift-box>.masthead {height:86px;}
+  #desktop-paper .gift-box .home-page {min-height:365px;padding-top:4px;}
+  #desktop-paper .home-postage {width:80px;height:82px;flex-basis:80px;margin-top:-2px;}
+  .home-postage .stamp-paper {padding:10px 8px 8px;}
+  .home-postage .stamp-paper img {width:64px;}
+  .home-postage .stamp-caption {font-size:5px;letter-spacing:.4px;}
+  .home-postage .stamp-value {font-size:5.3px;letter-spacing:.4px;}
+  #desktop-paper .gift-box .suggestions {margin-top:13px;}
+}
+@media(max-height:670px) {
+  :root {--letter-top:76px;--letter-bottom:52px;}
+  #desktop-paper .gift-box>.masthead {height:75px;}
+  #desktop-paper .gift-box .home-page {min-height:338px;}
+  #desktop-paper .gift-box .empty-conversation {padding-top:6px;padding-bottom:6px;}
+  #desktop-paper .empty-conversation h1 {font-size:29px;}
+  #desktop-paper .welcome-note {font-size:14px;}
+}
