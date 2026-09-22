@@ -9,6 +9,8 @@
 - 点击封蜡：拆信，进入工作区。
 - 点击信纸右上角邮票：返回主对话；点击左侧 `Hello, Sandman.`：管理个人资料。
 - 问候语下方的三张纵向便签：新建对话、工作空间、访问模式。
+- 对话内容直接呈现在信纸上；右侧邮票、四芒星导航和日期沿同一中心线排列。
+- Memories 页只有错层明信片，没有额外背景板。悬停或键盘聚焦某张明信片可将它抽到顶层，点击查看完整记录或继续对话。
 - 工作空间支持 macOS 文件夹多选；点击叠放便签可展开全部目录、置顶某个目录或撕走对应便签。移除只取消选择，不会删除目录或文件。
 - 访问模式在展开后选择，选中项显示在最上层。工作空间和模式保存在本机，重启后恢复。当前模式只是原型偏好，还未接入 Agent 的权限执行逻辑。
 - 点击 `Fold letter`：收起工作区，保留当前页面和未发送文字。
@@ -40,6 +42,8 @@
 - `Web/postage.css`、`Web/postage.js`：四芒星运送邮票、邮票返回对话，以及随窗口尺寸调整的信封边界。
 - `Web/envelope-materials.css`、`Web/letterpress.css`、`Web/letterpress.js`：信封与信纸材质、字体剪纸和纸上日期。
 - `Web/context-notes.css`、`Web/context-notes.js`：纵向便签、工作空间与访问模式的扇形展开和撕除动画。
+- `Web/stationery.css`、`Web/stationery.js`：信纸上的无框对话和右侧统一对齐的导航。
+- `Web/memories.css`、`Web/memories.js`：自然错层的明信片堆叠、悬停抽出与聚焦预览。
 - `Web/fonts/`：附带许可的离线字体。
 - `Tools/make_icon.swift`：应用图标的可复现绘制源码。
 - `../script/prepare_web.py`：复制原网页资源并改写为本地相对路径，不修改 `dist/` 网站。
@@ -50,7 +54,7 @@
 
 ## Git 历史与回滚
 
-完整源码及已有提交历史保存在 [GitHub](https://github.com/1003968634-spec/aster)。本次便签调整前的版本为 `macos-v0.3.0`（`c7c95f2`）；便签版本为 `macos-v0.4.0`。邮票导航调整前的版本已独立提交，并保留标签 `macos-before-stamp-navigation`（`949e8ea`）。
+完整源码及已有提交历史保存在 [GitHub](https://github.com/1003968634-spec/aster)。当前信纸与明信片版本为 `macos-v0.5.0`；前一版纵向便签与开合动画为 `macos-v0.4.0`（`688e8e2`）。便签调整前的版本为 `macos-v0.3.0`（`c7c95f2`）。邮票导航调整前保留标签 `macos-before-stamp-navigation`（`949e8ea`）。
 
 可以在独立目录打开旧版本，不改动当前工作目录：
 

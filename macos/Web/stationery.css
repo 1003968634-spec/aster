@@ -1,0 +1,106 @@
+/* Conversation is ink on the letter, without a second sheet beneath it. */
+#desktop-paper .gift-box .conversation-paper {
+  background:none;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  filter:none;
+  transform:none;
+  isolation:auto;
+}
+#desktop-paper .conversation-paper::before,
+#desktop-paper .conversation-paper::after,
+#desktop-paper .conversation-paper .paper-depth,
+#desktop-paper .conversation-paper .paper-corner,
+#desktop-paper .conversation-paper .empty-conversation {display:none;content:none;}
+#desktop-paper .gift-box .conversation-paper .messages {
+  background:none;
+  border:0;
+  box-shadow:none;
+  padding:22px 10px 24px;
+}
+#desktop-paper .conversation-paper .message {
+  background:none;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  filter:none;
+  margin:0 0 28px;
+  padding:0;
+}
+#desktop-paper .conversation-paper .message:last-child {margin-bottom:0;}
+#desktop-paper .conversation-paper .message p {color:#494c43;}
+#desktop-paper .gift-box .conversation-paper .composer {
+  margin-left:10px;
+  margin-right:10px;
+  border-top-color:#bca77f70;
+  padding-top:17px;
+  padding-bottom:16px;
+}
+
+/* A shared center line keeps the stamp, stars and date aligned on every page. */
+#desktop-paper .letter-rail {
+  position:absolute;
+  top:14px;
+  bottom:10px;
+  right:13px;
+  width:172px;
+  z-index:7;
+  pointer-events:none;
+}
+#desktop-paper .letter-rail .home-postage {
+  position:absolute;
+  top:2px;
+  left:50%;
+  margin:0;
+  transform:translateX(-50%) rotate(5deg);
+}
+#desktop-paper .letter-rail .home-postage:hover {transform:translateX(-50%) translateY(-3px) rotate(1deg);}
+#desktop-paper .letter-rail .home-postage:active {transform:translateX(-50%) translateY(1px) rotate(3deg);}
+#desktop-paper .letter-rail .star-navigation {
+  position:absolute;
+  top:50%;
+  bottom:auto;
+  left:50%;
+  right:auto;
+  width:65px;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:21px;
+  transform:translate(-50%,-50%);
+  background:none;
+  border:0;
+  box-shadow:none;
+  pointer-events:auto;
+}
+#desktop-paper .letter-rail .footer-coordinates {
+  position:absolute;
+  bottom:0;
+  left:50%;
+  width:100%;
+  transform:translateX(-50%);
+  font-family:var(--hand);
+  font-size:17px;
+  line-height:1.15;
+  text-align:center;
+  white-space:normal;
+  color:var(--letter-small-ink);
+}
+#desktop-paper .letter-rail .nav-label {right:67px;}
+#desktop-paper .masthead .header-greeting {max-width:calc(100% - 140px);}
+@media(max-height:760px) {
+  #desktop-paper .letter-rail {top:12px;bottom:8px;}
+  #desktop-paper .letter-rail .star-navigation {gap:14px;}
+}
+@media(max-height:670px) {
+  #desktop-paper .letter-rail .star-navigation {gap:9px;}
+  #desktop-paper .letter-rail .nav-star {width:57px;height:57px;padding:13px;}
+  #desktop-paper .letter-rail .nav-end {display:none;}
+}
+@media(max-width:1050px) {
+  #desktop-paper .letter-rail {right:4px;width:144px;}
+  #desktop-paper .letter-rail .footer-coordinates {font-size:15px;}
+  #desktop-paper .masthead .header-greeting {max-width:calc(100% - 116px);}
+}

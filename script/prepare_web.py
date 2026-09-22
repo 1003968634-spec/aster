@@ -13,6 +13,9 @@ def desktop_letter_markup(source):
     removable = (
         ('website wordmark', '<button class="wordmark" data-page="home" aria-label="Aster home"><svg class="icon"><use href="#star"/></svg><span>aster</span><span class="wordmark-period">.</span></button>'),
         ('website tagline', '<div class="masthead-note">a space for your thoughts</div>'),
+        ('conversation paper layers', '<div class="paper-depth" aria-hidden="true"><i class="paper-layer layer-back"></i><i class="paper-layer layer-middle"></i><i class="paper-layer layer-front"></i></div>'),
+        ('conversation paper corners', '<span class="paper-corner top-left" aria-hidden="true"></span><span class="paper-corner bottom-right" aria-hidden="true"></span>'),
+        ('conversation welcome', '<div class="empty-conversation" id="empty-conversation"><div class="welcome-star"><svg><use href="#star"/></svg><i>✧</i></div><p class="welcome-kicker">A quiet mind. An open page.</p><h1>Every good thing<br>begins with <em>a thought.</em></h1><p class="welcome-note">Bring your questions, your wild ideas,<br>or just yourself. I’m here.</p></div>'),
         ('old new-conversation row', '<div class="conversation-topline"><span><span class="small-aster">✳</span> A LITTLE ROOM FOR BIG IDEAS</span><button class="text-button" id="new-chat">New conversation <svg class="icon"><use href="#plus"/></svg></button></div>'),
         ('website suggestions', '<div class="suggestions"><span class="hand-note">a few little sparks</span><button data-prompt="Help me find an unexpected idea for a creative project.">Dream something up <span>↗</span></button><button data-prompt="Help me turn a tangled thought into a clear plan.">Untangle a thought <span>↗</span></button><button data-prompt="Help me make a gentle plan for my day.">Make a little plan <span>↗</span></button></div>'),
         ('conversation footnote', '<div class="conversation-footnote"><span class="tiny-star">✧</span> Made for curiosity. Room for a little magic.<span class="demo-label">INTERACTIVE DEMO</span></div>'),
@@ -34,7 +37,7 @@ if destination.exists():
 shutil.copytree(ROOT / "dist", destination)
 shutil.copytree(ROOT / "macos/Web/fonts", destination / "assets/fonts", dirs_exist_ok=True)
 shutil.copytree(ROOT / "macos/Web/assets", destination / "assets", dirs_exist_ok=True)
-for name in ("envelope.css", "envelope.js", "envelope-materials.css", "letterpress.css", "letterpress.js", "postage.css", "postage.js", "context-notes.css", "context-notes.js"):
+for name in ("envelope.css", "envelope.js", "envelope-materials.css", "letterpress.css", "letterpress.js", "postage.css", "postage.js", "context-notes.css", "context-notes.js", "stationery.css", "stationery.js", "memories.css", "memories.js"):
     shutil.copy2(ROOT / "macos/Web" / name, destination / name)
 
 # A file:// application has no HTTP origin root. Keep every resource relative.
@@ -58,10 +61,14 @@ for path in destination.rglob("*"):
             '  <link rel="stylesheet" href="./letterpress.css" />\n'
             '  <link rel="stylesheet" href="./postage.css" />\n'
             '  <link rel="stylesheet" href="./context-notes.css" />\n'
+            '  <link rel="stylesheet" href="./stationery.css" />\n'
+            '  <link rel="stylesheet" href="./memories.css" />\n'
             '  <script src="./envelope.js" defer></script>\n'
             '  <script src="./letterpress.js" defer></script>\n'
             '  <script src="./postage.js" defer></script>\n'
-            '  <script src="./context-notes.js" defer></script>\n</head>')
+            '  <script src="./context-notes.js" defer></script>\n'
+            '  <script src="./stationery.js" defer></script>\n'
+            '  <script src="./memories.js" defer></script>\n</head>')
     path.write_text(source)
 
 # No unused heavy artwork in the desktop download.
