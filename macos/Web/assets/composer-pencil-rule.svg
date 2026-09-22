@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="12" viewBox="0 0 1000 12" preserveAspectRatio="none">
+  <defs>
+    <filter id="graphite" x="0" y="0" width="1000" height="12" filterUnits="userSpaceOnUse">
+      <feTurbulence type="fractalNoise" baseFrequency=".78 .65" numOctaves="3" seed="17" result="grain"/>
+      <feColorMatrix in="grain" type="luminanceToAlpha" result="paperTooth"/>
+      <feComposite in="SourceGraphic" in2="paperTooth" operator="in"/>
+    </filter>
+  </defs>
+  <g fill="none" stroke="#82715a" stroke-linecap="round" stroke-linejoin="round" filter="url(#graphite)">
+    <path stroke-width="1.65" d="M3 6.9 28 6.3 57 6.7 92 5.9 128 6.1 171 5.8 211 6.4 259 5.7 296 5.8 347 6.2 389 5.5 436 6 487 5.6 531 6.1 577 5.5 626 5.9 673 5.2 718 5.8 761 5.3 802 5.7 846 5.1 891 5.5 935 5.1 975 5.6 996 5.2"/>
+    <path opacity=".58" stroke-width=".7" d="M9 8.2 66 7.9 122 7.3 180 7.8 231 7.1 289 7.5 345 7.2 402 7.8 466 7.1 520 7.5 577 6.8 640 7.2 703 6.7 768 7.1 832 6.5 894 7 949 6.6 988 6.9"/>
+    <path opacity=".48" stroke-width=".55" d="M18 4.7 76 4.1 122 4.6 M182 4.1 234 4.4 271 3.9 M334 4.2 383 3.7 419 4 M490 3.7 541 4.1 M612 3.6 663 4 708 3.5 M783 3.8 831 3.2 M905 3.6 961 3.3"/>
+  </g>
+</svg>

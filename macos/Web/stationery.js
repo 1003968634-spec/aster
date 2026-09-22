@@ -6,6 +6,7 @@
   const navigation=box?.querySelector('.star-navigation');
   const date=box?.querySelector('.footer-coordinates');
   if (!box || !stamp || !navigation || !date) return;
+  navigation.querySelectorAll('.star-nav-line,.nav-end').forEach(element=>element.remove());
   const rail=document.createElement('aside');
   rail.className='letter-rail';
   rail.setAttribute('aria-label','Letter navigation');

@@ -42,7 +42,7 @@
     window.dispatchEvent(new CustomEvent('aster-context-changed',{detail:snapshot()}));
   }
   function fanStyle(index,count) {
-    const angle=count===1?0:-8+index/(count-1)*16;
+    const angle=count===1?0:-4+index/(count-1)*8;
     return `--fan-index:${index};--fan-angle:${angle}deg;--fan-z:${count-index}`;
   }
   function stack(kind,label,cards,count) {

@@ -33,10 +33,23 @@
 #desktop-paper .gift-box .conversation-paper .composer {
   margin-left:10px;
   margin-right:10px;
-  border-top-color:#bca77f70;
+  border-top:0;
   padding-top:17px;
   padding-bottom:16px;
 }
+#desktop-paper .gift-box .conversation-paper .composer::before {
+  content:'';
+  position:absolute;
+  left:0;
+  right:0;
+  top:-5px;
+  height:12px;
+  background:url('./assets/composer-pencil-rule.svg') center / 100% 100% no-repeat;
+  opacity:.8;
+  pointer-events:none;
+  transition:opacity .2s;
+}
+#desktop-paper .gift-box .conversation-paper .composer:focus-within::before {opacity:1;}
 
 /* A shared center line keeps the stamp, stars and date aligned on every page. */
 #desktop-paper .letter-rail {
@@ -97,7 +110,6 @@
 @media(max-height:670px) {
   #desktop-paper .letter-rail .star-navigation {gap:9px;}
   #desktop-paper .letter-rail .nav-star {width:57px;height:57px;padding:13px;}
-  #desktop-paper .letter-rail .nav-end {display:none;}
 }
 @media(max-width:1050px) {
   #desktop-paper .letter-rail {right:4px;width:144px;}

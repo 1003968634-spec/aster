@@ -172,8 +172,21 @@
         scaleY = mix(1, target.height / start.height, p);
         angle = mix(initialAngle - 9, finalAngle, p) - Math.sin(p * Math.PI) * 7;
         lift = 1 - Math.pow(p, 4);
-        starAt = {x: stampAt.x + carryOffset.x*scaleX, y: stampAt.y + carryOffset.y*scaleY};
-        starAngle = 27 + Math.sin(p * Math.PI) * 20;
+        if (returning) {
+          starAt = {x: stampAt.x + carryOffset.x*scaleX, y: stampAt.y + carryOffset.y*scaleY};
+          starAngle = 27 + Math.sin(p * Math.PI) * 20;
+        } else {
+          // Land with the stamp at its upper-left corner. Resolve the courier's
+          // final pose during the shared flight, with no separate swoop after
+          // the stamp has already touched the letter.
+          starAt = {
+            x: stampAt.x + mix(carryOffset.x, parked.x - target.x, p),
+            y: stampAt.y + mix(carryOffset.y, parked.y - target.y, p)
+          };
+          starAngle = mix(27, -5, p) + Math.sin(p * Math.PI) * 20;
+          starScaleX = mix(1, parked.width / 57, p);
+          starScaleY = mix(1, parked.height / 65, p);
+        }
       } else {
         const p = ease((elapsed - duration + 180) / 180);
         stampAt = target;
@@ -187,10 +200,10 @@
           starOpacity = 1 - p;
           starScaleX = starScaleY = mix(.72, 1, starOpacity);
         } else {
-          starAt = point(carried, {x: carried.x - 22, y: carried.y}, {x: parked.x - 8, y: parked.y - 12}, parked, p);
-          starAngle = mix(27, -5, p);
-          starScaleX = mix(1, parked.width / 57, p);
-          starScaleY = mix(1, parked.height / 65, p);
+          starAt = parked;
+          starAngle = -5;
+          starScaleX = parked.width / 57;
+          starScaleY = parked.height / 65;
         }
       }
       pose(stampAt, scaleX, scaleY, angle, lift);
