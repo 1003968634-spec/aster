@@ -2,6 +2,8 @@
 
 An artistic agent interaction demo inspired by hand-drawn celestial diagrams, warm paper, postcards, and tarot cards.
 
+The macOS envelope prototype is in `macos/`. Run `./script/build_and_run.sh` to build and open its native app; see [macOS instructions](macos/README.md).
+
 ## Run locally
 
 No dependencies or build step are required. From this directory:

@@ -1,0 +1,150 @@
+/* Desktop stationery: ink belongs to the sheet; the signature is cut from paper. */
+#desktop-paper {
+  --letter-ink:#827254;
+  --letter-small-ink:#877b66;
+}
+
+#desktop-paper .watercolor-backdrop {
+  background:#f4efdf url('./assets/letter-paper-real.png') center / 100% 100% no-repeat;
+}
+
+#desktop-paper .canvas-wash,
+#desktop-paper .canvas-orbit {
+  display:none;
+  background:none;
+}
+
+#desktop-paper .paper-grain {opacity:.045;}
+
+/* The letter itself is the backing board. There is no masthead strip. */
+#desktop-paper .gift-box > .masthead {
+  overflow:visible;
+  background:none;
+  border:0;
+  box-shadow:none;
+  filter:none;
+  padding-left:14px;
+  padding-right:14px;
+  gap:25px;
+}
+
+#desktop-paper .gift-box > .masthead::before,
+#desktop-paper .gift-box > .masthead::after {
+  content:none;
+  display:none;
+}
+
+#desktop-paper .wordmark {
+  color:var(--letter-ink);
+  font-size:var(--wordmark-size);
+  overflow:visible;
+  flex-shrink:0;
+  padding-bottom:5px;
+}
+
+#desktop-paper .wordmark > span {
+  display:inline-block;
+  overflow:visible;
+  filter:url(#letter-cut-type);
+  transition:transform .28s ease;
+}
+
+#desktop-paper .wordmark-period {color:inherit;}
+
+#desktop-paper .wordmark:hover > span,
+#desktop-paper .wordmark:focus-visible > span {transform:translateY(-1.5px);}
+
+#desktop-paper .masthead-note {
+  position:relative;
+  color:var(--letter-ink);
+  font-family:var(--hand);
+  font-size:19px;
+  line-height:1.35;
+  padding:4px 0 0;
+  white-space:nowrap;
+  filter:url(#letter-cut-fine-type);
+  text-shadow:none;
+  background:none;
+  border:0;
+  box-shadow:none;
+}
+
+#desktop-paper .masthead .header-greeting,
+#desktop-paper .masthead .header-greeting:hover {
+  color:var(--letter-ink);
+  font-size:var(--wordmark-size);
+  overflow:visible;
+  background:none;
+  box-shadow:none;
+}
+
+/* Clipping happens before the outline so a long name still has an intact edge. */
+#desktop-paper .greeting-cutout {
+  display:block;
+  min-width:0;
+  max-width:100%;
+  filter:url(#letter-cut-type);
+}
+
+#desktop-paper .greeting-cutout > .greeting-copy {
+  display:block;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  padding:3px 4px 6px;
+  margin:-3px -4px -6px;
+  text-shadow:none;
+}
+
+/* Secondary notes remain flat ink, printed directly on the cotton sheet. */
+#desktop-paper .gift-box > .page-footer {
+  color:var(--letter-small-ink);
+  border:0;
+  background:none;
+  box-shadow:none;
+  filter:none;
+  text-shadow:none;
+}
+
+#desktop-paper .page-footer > *,
+#desktop-paper .conversation-topline,
+#desktop-paper .conversation-footnote,
+#desktop-paper .suggestions > .hand-note {
+  background:none;
+  box-shadow:none;
+  filter:none;
+  text-shadow:none;
+}
+
+#desktop-paper .page-footer .icon,
+#desktop-paper .conversation-topline .small-aster,
+#desktop-paper .conversation-footnote .tiny-star {
+  filter:none;
+  text-shadow:none;
+}
+
+#desktop-paper .footer-coordinates {
+  display:block;
+  color:var(--letter-small-ink);
+  font-family:var(--hand);
+  font-size:17px;
+  letter-spacing:.1px;
+  white-space:nowrap;
+}
+
+#desktop-paper .footer-coordinates time {font:inherit;}
+
+@media(max-width:1050px) {
+  #desktop-paper .gift-box > .masthead {gap:18px;}
+}
+
+@media(max-width:820px) {
+  #desktop-paper .gift-box > .masthead {padding-left:7px;padding-right:7px;}
+  #desktop-paper .page-footer > div {display:none;}
+}
+
+@media(prefers-reduced-motion:reduce) {
+  #desktop-paper .wordmark > span {transition:none;}
+}
+
+:root.reduce-motion #desktop-paper .wordmark > span {transition:none;}
