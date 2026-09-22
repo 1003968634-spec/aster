@@ -1,8 +1,14 @@
 /* The letter is the Memories page. Only the postcards have their own paper. */
+#desktop-paper .gift-box > main.memories-open {
+  overflow:clip;
+  scroll-padding:0;
+}
 #desktop-paper .gift-box .page.history-page {
   width:calc(100% - 180px);
-  margin:10px 164px 30px 16px;
-  padding:12px 24px 26px;
+  height:100%;
+  min-height:0;
+  margin:0 164px 0 16px;
+  padding:8px 24px 10px;
   background:none;
   border:0;
   box-shadow:none;
@@ -11,31 +17,35 @@
 }
 #desktop-paper .gift-box .history-page::before,
 #desktop-paper .gift-box .history-page::after {content:none;display:none;}
-#desktop-paper .history-page .subpage-top {margin-bottom:15px;}
-#desktop-paper .history-page .subpage-heading {margin-bottom:15px;gap:20px;}
-#desktop-paper .history-page .subpage-heading h1 {font-size:clamp(34px,3.7vw,49px);margin-bottom:7px;}
-#desktop-paper .history-page .subpage-heading p {font-size:17px;}
-#desktop-paper .history-page .chapter-label {font-size:9px;letter-spacing:1px;}
-#desktop-paper .history-page .history-layout {display:block;padding:20px 18px 30px 10px;}
-#desktop-paper .history-page .history-note {display:none;}
+#desktop-paper .history-page :is(.subpage-top,.subpage-heading,.history-note) {display:none;}
+#desktop-paper .history-page .history-layout {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr);
+  gap:0;
+  place-items:center;
+  height:100%;
+  min-height:0;
+  padding:0 18px 0 10px;
+}
 #desktop-paper .history-page .postcard-stack {
   --postcard-height:278px;
-  --postcard-step:100px;
+  --pile-height:100%;
   position:relative;
   isolation:isolate;
   margin:0 auto;
   width:100%;
   max-width:690px;
-  min-height:calc(var(--postcard-height) + (var(--count) - 1) * var(--postcard-step));
+  height:var(--pile-height);
+  min-height:0;
 }
 #desktop-paper .history-page .postcard-slot {
   position:absolute;
-  top:calc(var(--i) * var(--postcard-step));
+  top:var(--slot-top,0px);
   left:var(--shift);
   width:100%;
-  height:var(--postcard-height);
+  height:var(--hit-height,var(--postcard-height));
   z-index:calc(var(--count) - var(--i));
-  transform:rotate(var(--angle));
 }
 #desktop-paper .history-page .postcard-slot.is-raised {z-index:calc(var(--count) + 1);}
 #desktop-paper .history-page .postcard {
@@ -63,7 +73,8 @@
 #desktop-paper .history-page .postcard-face {
   display:block;
   position:absolute;
-  inset:0;
+  inset:var(--face-top,0px) 0 auto;
+  height:var(--postcard-height);
   padding:24px 30px;
   background:var(--paper-fiber),linear-gradient(108deg,#faf5e8,#efe5cd);
   border:1px solid #b7a580;
@@ -71,12 +82,13 @@
   box-shadow:0 1px 0 #fffdf3 inset,1px 3px 0 #c7baa0,3px 7px 7px #5f54392d;
   color:#514f41;
   pointer-events:none;
+  transform:rotate(var(--angle));
   transition:transform .32s cubic-bezier(.2,.75,.22,1),box-shadow .32s;
 }
 #desktop-paper .history-page .postcard-slot:nth-child(3n + 2) .postcard-face {background:var(--paper-fiber),linear-gradient(105deg,#f4ecd9,#e6d6b7);}
 #desktop-paper .history-page .postcard-slot:nth-child(3n) .postcard-face {background:var(--paper-fiber),linear-gradient(105deg,#eff0e3,#dfe5d6);}
 #desktop-paper .history-page .postcard-slot.is-raised .postcard-face {
-  transform:translateY(-12px) rotate(calc(-1 * var(--angle)));
+  transform:translateY(-12px) rotate(0deg);
   box-shadow:0 1px 0 #fffdf3 inset,1px 3px 0 #c7baa0,7px 17px 17px #51472d36;
 }
 #desktop-paper .history-page .postcard:focus-visible {outline:none;}
@@ -155,20 +167,26 @@
 }
 #desktop-paper .history-page .postcard-category {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 #desktop-paper .history-page .postcard-date {flex-shrink:0;}
+#desktop-paper .history-page .postcard-slot:not(:first-child):not(.is-raised) .postcard-address {
+  bottom:8px;
+  padding-top:0;
+  border-top:0;
+}
+#desktop-paper .history-page .postcard-slot:not(:first-child):not(.is-raised) .postcard-meta {display:none;}
 #desktop-paper .history-page .postcard-empty {font:24px var(--hand);color:#857658;padding:50px 10px;}
+#desktop-paper .history-page .is-compact .postcard-content {top:55px;}
+#desktop-paper .history-page .is-compact .postcard-excerpt {-webkit-line-clamp:2;font-size:16px;}
+#desktop-paper .history-page .is-compact .postcard-open {margin-top:7px;font-size:19px;}
+#desktop-paper .history-page .is-compact .postcard-title {font-size:23px;}
+#desktop-paper .history-page .is-small .postcard-open {display:none;}
 @media(max-width:1050px) {
   #desktop-paper .gift-box .page.history-page {width:calc(100% - 148px);margin-left:10px;margin-right:138px;padding-left:15px;padding-right:15px;}
   #desktop-paper .history-page .postcard-title {font-size:23px;}
   #desktop-paper .history-page .postcard-excerpt {font-size:17px;}
-  #desktop-paper .history-page .subpage-heading {flex-wrap:wrap;gap:14px;}
-  #desktop-paper .history-page .subpage-heading h1 {font-size:38px;}
   #desktop-paper .history-page .postcard-meta {font-size:8px;}
 }
 @media(max-height:670px) {
-  #desktop-paper .gift-box .page.history-page {margin-top:4px;padding-top:5px;}
-  #desktop-paper .history-page .subpage-top {margin-bottom:10px;}
-  #desktop-paper .history-page .subpage-heading h1 {font-size:34px;}
-  #desktop-paper .history-page .subpage-heading p {font-size:16px;}
+  #desktop-paper .gift-box .page.history-page {padding-top:4px;padding-bottom:4px;}
 }
 @media(prefers-reduced-motion:reduce) {
   #desktop-paper .history-page .postcard-face {transition:none;}

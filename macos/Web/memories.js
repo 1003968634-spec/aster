@@ -2,6 +2,8 @@
 (() => {
   const main = document.querySelector('#main');
   if (!main) return;
+  let resizeObserver = null;
+  let currentPage = null;
 
   const node = (tag, className, text) => {
     const element = document.createElement(tag);
@@ -24,11 +26,19 @@
 
   function upgradeMemories() {
     const page = main.querySelector('.history-page');
+    main.classList.toggle('memories-open', !!page);
+    if (currentPage !== page) {
+      resizeObserver?.disconnect();
+      resizeObserver = null;
+      currentPage = page;
+    }
     if (!page || page.dataset.postcardPile === 'ready' || typeof allMemories !== 'function') return;
     page.dataset.postcardPile = 'ready';
+    page.setAttribute('aria-label', 'Memories');
     const stack = page.querySelector('.postcard-stack');
     if (!stack) return;
-    page.querySelector('.history-note')?.remove();
+    page.querySelectorAll('.subpage-top,.subpage-heading,.history-note').forEach(element => element.remove());
+    const layout = page.querySelector('.history-layout');
     const memories = allMemories();
     const fragment = document.createDocumentFragment();
     let hovered = null;
@@ -48,7 +58,6 @@
     memories.forEach((memory, index) => {
       const slot = node('div', 'postcard-slot');
       slot.style.setProperty('--i', index);
-      slot.style.setProperty('--angle', `${[-1.4, 1.7, -1, 1.1, -.6][index % 5]}deg`);
       slot.style.setProperty('--shift', `${[0, 12, -8, 8, -3][index % 5]}px`);
       const button = node('button', `postcard ${index === 0 ? 'latest' : 'tucked'}`);
       button.type = 'button';
@@ -97,11 +106,47 @@
         if (focused === index) focused = null;
         raise();
       });
+      button.addEventListener('keydown', event => {
+        let next;
+        if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = Math.min(slots.length - 1, index + 1);
+        else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = Math.max(0, index - 1);
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = slots.length - 1;
+        else return;
+        event.preventDefault();
+        slots[next]?.querySelector('.postcard').focus({preventScroll: true});
+      });
       slots.push(slot);
       fragment.append(slot);
     });
     if (!memories.length) fragment.append(node('p', 'postcard-empty', 'Your conversations will be kept here.'));
     stack.replaceChildren(fragment);
+
+    function fitPile() {
+      if (!page.isConnected) return;
+      // Leave room for the paper's lift and shadow. All cards share this fixed
+      // canvas; adding a memory tightens the pile instead of growing the page.
+      const available = Math.max(1, layout.clientHeight - 42);
+      const height = Math.min(278, available, Math.max(190, available * .64));
+      const step = memories.length > 1 ? Math.min(72, (available - height) / (memories.length - 1)) : 0;
+      const pileHeight = height + Math.max(0, memories.length - 1) * step;
+      stack.style.setProperty('--postcard-height', `${height}px`);
+      stack.style.setProperty('--pile-height', `${pileHeight}px`);
+      stack.classList.toggle('is-compact', height < 255);
+      stack.classList.toggle('is-small', height < 215);
+      const angleScale = memories.length > 1 ? Math.min(1, step * .35 / Math.max(1, stack.clientWidth) * 180 / Math.PI / 1.7) : 1;
+      slots.forEach((slot, index) => {
+        // Fixed, nonoverlapping hit strips remain available even when another
+        // card's full visual face is lifted over them.
+        slot.style.setProperty('--slot-top', `${index === 0 ? 0 : height + (index - 1) * step}px`);
+        slot.style.setProperty('--hit-height', `${index === 0 ? height : step}px`);
+        slot.style.setProperty('--face-top', `${index === 0 ? 0 : step - height}px`);
+        slot.style.setProperty('--angle', `${[-1.4, 1.7, -1, 1.1, -.6][index % 5] * angleScale}deg`);
+      });
+    }
+    resizeObserver = new ResizeObserver(fitPile);
+    resizeObserver.observe(layout);
+    fitPile();
   }
 
   // renderPage replaces main's direct child on navigation; our own upgrades
