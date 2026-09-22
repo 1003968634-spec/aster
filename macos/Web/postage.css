@@ -39,7 +39,7 @@
   transition-duration:.67s,.18s,0s;transition-delay:0s,.49s,.67s;
 }
 :root:is(.postage-in-transit,.postage-delivered) .envelope-stamp {visibility:hidden;}
-:root.postage-in-transit .home-postage {visibility:hidden;pointer-events:none;}
+:root.postage-in-transit :is(.home-postage,.postal-new-chat) {visibility:hidden;pointer-events:none;}
 #desktop-paper .gift-box>.masthead {justify-content:space-between;height:100px;gap:25px;}
 #desktop-paper .masthead .header-greeting {
   margin-left:0;margin-right:auto;max-width:calc(100% - 125px);
@@ -73,6 +73,35 @@
   opacity:0;pointer-events:none;transition:opacity .2s;
 }
 .home-postage:hover::after,.home-postage:focus-visible::after {opacity:1;}
+
+/* The delivery star rests beside the stamp and opens a fresh conversation. */
+.postal-new-chat {
+  position:absolute;width:44px;height:50px;padding:0;border:0;background:none;
+  display:grid;place-items:center;z-index:2;
+  visibility:hidden;pointer-events:none;
+  transform:rotate(-5deg);transition:transform .3s ease;
+}
+#desktop-paper .letter-rail .postal-new-chat {top:90px;left:calc(50% - 72px);}
+.postal-new-chat>svg {
+  display:block;width:44px;height:50px;overflow:visible;
+  fill:#c2a157;stroke:#8f743e;stroke-width:.8;
+  filter:url(#paper-cut-icon);
+}
+:root.postage-delivered .postal-new-chat {visibility:visible;pointer-events:auto;}
+.postal-new-chat:hover {transform:translateY(-3px) rotate(7deg);}
+.postal-new-chat:active {transform:translateY(1px) rotate(-8deg) scale(.94);}
+.postal-new-chat:focus-visible {outline:1px solid #7e7564;outline-offset:4px;border-radius:50%;}
+.postal-star-label {
+  position:absolute;right:calc(100% + 9px);top:50%;
+  padding:4px 12px;white-space:nowrap;
+  font:23px/1.1 var(--hand);letter-spacing:0;color:#766950;background:#eee1bd;
+  clip-path:polygon(3% 1%,97% 0,100% 17%,98% 82%,96% 100%,3% 98%,0 78%,2% 25%);
+  opacity:0;transform:translate(6px,-50%);pointer-events:none;
+  transition:opacity .2s,transform .2s;
+}
+.postal-new-chat:hover .postal-star-label,.postal-new-chat:focus-visible .postal-star-label {
+  opacity:1;transform:translate(0,-50%);
+}
 .postage-flight {position:fixed;inset:0;z-index:75;pointer-events:none;}
 .flying-stamp {
   position:absolute;left:0;top:0;transform-origin:50% 50%;
@@ -90,12 +119,17 @@
   #desktop-paper .gift-box>.masthead {height:86px;}
   #desktop-paper .gift-box .home-page {min-height:365px;padding-top:4px;}
   #desktop-paper .home-postage {width:80px;height:82px;flex-basis:80px;margin-top:-2px;}
+  #desktop-paper .letter-rail .postal-new-chat {top:76px;left:calc(50% - 65px);}
   .home-postage .stamp-paper,.flying-stamp.from-letter .stamp-paper {padding:10px 8px 8px;}
   .home-postage .stamp-paper img,.flying-stamp.from-letter .stamp-paper img {width:64px;}
   .home-postage .stamp-caption,.flying-stamp.from-letter .stamp-caption {font-size:5px;letter-spacing:.4px;}
   .home-postage .stamp-value,.flying-stamp.from-letter .stamp-value {font-size:5.3px;letter-spacing:.4px;}
   #desktop-paper .gift-box .suggestions {margin-top:13px;}
 }
+@media(prefers-reduced-motion:reduce) {
+  .postal-new-chat,.postal-star-label {transition:none;}
+}
+:root.reduce-motion .postal-new-chat,:root.reduce-motion .postal-star-label {transition:none;}
 @media(max-height:670px) {
   :root {--letter-top:76px;--letter-bottom:52px;}
   #desktop-paper .gift-box>.masthead {height:75px;}

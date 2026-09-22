@@ -10,5 +10,7 @@
   rail.className='letter-rail';
   rail.setAttribute('aria-label','Letter navigation');
   rail.append(stamp,navigation,date);
+  const newConversation=box.querySelector('.postal-new-chat');
+  if (newConversation) rail.append(newConversation);
   box.append(rail);
 })();
