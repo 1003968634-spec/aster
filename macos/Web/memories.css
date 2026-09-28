@@ -9,6 +9,9 @@
   min-height:0;
   margin:0 164px 0 16px;
   padding:8px 24px 10px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
   background:none;
   border:0;
   box-shadow:none;
@@ -17,14 +20,28 @@
 }
 #desktop-paper .gift-box .history-page::before,
 #desktop-paper .gift-box .history-page::after {content:none;display:none;}
-#desktop-paper .history-page :is(.subpage-top,.subpage-heading,.history-note) {display:none;}
+#desktop-paper .history-page :is(.subpage-top,.history-note) {display:none;}
+#desktop-paper .history-page .subpage-heading {
+  display:flex;
+  flex:0 0 auto;
+  align-items:center;
+  gap:12px;
+  min-height:46px;
+  margin:0 0 9px;
+}
+#desktop-paper .history-page .subpage-heading h1 {font-size:30px;line-height:1.05;margin:0;}
+#desktop-paper .history-page .subpage-heading p {display:none;}
+#desktop-paper .history-page .subpage-heading .outline-button {font-size:17px;padding:6px 9px;}
+#desktop-paper .history-page .history-controls {flex:0 0 auto;margin:0 0 8px;}
+#desktop-paper .history-page #history-more {flex:0 0 auto;margin:7px auto 0;padding:5px 10px;}
 #desktop-paper .history-page .history-layout {
   display:grid;
   grid-template-columns:minmax(0,1fr);
   grid-template-rows:minmax(0,1fr);
   gap:0;
   place-items:center;
-  height:100%;
+  flex:1 1 auto;
+  height:auto;
   min-height:0;
   padding:0 18px 0 10px;
 }

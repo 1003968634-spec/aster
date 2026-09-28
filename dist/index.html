@@ -13,7 +13,12 @@
   <link rel="preload" href="/assets/fonts/texgyrechorus-mediumitalic.otf" as="font" type="font/otf" crossorigin />
   <link rel="stylesheet" href="/style.css?v=4" />
   <link rel="stylesheet" href="/tarot.css?v=7" />
+  <link rel="stylesheet" href="./plugin-library.css" />
+  <script src="/aster-backend.js" defer></script>
+  <script src="./plugin-library.js" defer></script>
   <script src="/app.js?v=4" defer></script>
+  <script src="./ritual-board.js" defer></script>
+  <link rel="stylesheet" href="./ritual-board.css" />
 </head>
 <body>
   <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -49,17 +54,21 @@
     <section class="page home-page" data-view="home">
       <div class="workspace">
         <div class="conversation-area">
-          <div class="conversation-topline"><span><span class="small-aster">✳</span> A LITTLE ROOM FOR BIG IDEAS</span><button class="text-button" id="new-chat">New conversation <svg class="icon"><use href="#plus"/></svg></button></div>
+          <div class="home-overview"><aside id="ritual-board" class="ritual-board" aria-label="Scheduled tasks"></aside>
+          <div class="conversation-topline"><span><span class="small-aster">✳</span> A LITTLE ROOM FOR BIG IDEAS <span id="connection-status" class="connection-status" role="status"></span><button type="button" class="connection-retry" id="reconnect-button" hidden>Retry</button></span><button class="text-button" id="new-chat">New conversation <svg class="icon"><use href="#plus"/></svg></button></div>
+          </div>
+          <div class="session-action-row" id="session-action-row" hidden><span class="session-action-title" id="session-action-title"></span><div class="session-action-buttons"><button type="button" id="rename-session">Rename</button><button type="button" id="fork-session">Fork</button><button type="button" id="pin-session">Pin</button><button type="button" id="archive-session">Archive</button></div></div>
           <section class="conversation-paper" aria-label="Agent conversation">
             <div class="paper-depth" aria-hidden="true"><i class="paper-layer layer-back"></i><i class="paper-layer layer-middle"></i><i class="paper-layer layer-front"></i></div>
             <span class="paper-corner top-left" aria-hidden="true"></span><span class="paper-corner bottom-right" aria-hidden="true"></span>
             <div class="empty-conversation" id="empty-conversation"><div class="welcome-star"><svg><use href="#star"/></svg><i>✧</i></div><p class="welcome-kicker">A quiet mind. An open page.</p><h1>Every good thing<br>begins with <em>a thought.</em></h1><p class="welcome-note">Bring your questions, your wild ideas,<br>or just yourself. I’m here.</p></div>
             <div class="messages" id="messages" aria-live="polite" aria-label="Conversation messages"></div>
-            <form class="composer" id="chat-form"><label class="sr-only" for="message-input">Your message</label><textarea id="message-input" placeholder="Let your thoughts wander…" rows="1" maxlength="5000"></textarea><div class="composer-bottom"><div class="composer-tools"><button type="button" class="icon-button" id="attach-button" aria-label="Attach a text file"><svg class="icon"><use href="#clip"/></svg></button><input type="file" id="file-input" accept=".txt,.md,.csv,.json" hidden/><span id="attachment-label"></span><span class="model-name">Aster Muse</span></div><button type="submit" class="send-button" aria-label="Send message"><svg class="send-constellation" viewBox="0 0 76 62" aria-hidden="true" focusable="false">
+            <div class="activity-list" id="activity-list" aria-label="Agent activity" hidden></div>
+            <form class="composer" id="chat-form"><label class="sr-only" for="message-input">Your message</label><textarea id="message-input" placeholder="Let your thoughts wander…" rows="1" maxlength="5000"></textarea><div class="composer-bottom"><div class="composer-tools"><button type="button" class="icon-button" id="attach-button" aria-label="Attach a file"><svg class="icon"><use href="#clip"/></svg></button><input type="file" id="file-input" accept=".txt,.md,.csv,.json" multiple hidden/><span id="attachment-label"></span><button type="button" class="command-button" id="command-button" title="Run a DSH command">/ Command</button><span class="model-name">Aster Muse</span><label class="workspace-picker" for="workspace-select">Next workspace <select id="workspace-select" aria-label="Choose workspace for next DSH conversation" disabled><option value="">Connecting…</option></select></label><label class="model-picker" for="model-select">Model <select id="model-select" aria-label="Choose DSH model" disabled><option value="">Connecting…</option></select></label></div><div class="composer-actions"><button type="button" class="stop-button" id="stop-button" aria-label="Stop agent response" hidden>Stop ■</button><button type="submit" class="send-button" aria-label="Send message"><svg class="send-constellation" viewBox="0 0 76 62" aria-hidden="true" focusable="false">
               <g class="send-satellite send-satellite-back" transform="translate(62.2 18)" opacity="1"><use href="#star" x="-5.5" y="-5.5" width="11" height="11"/></g>
               <use class="send-primary" href="#star" x="17" y="9" width="42" height="44"/>
               <g class="send-satellite send-satellite-front" transform="translate(62.2 18)" opacity="0"><use href="#star" x="-5.5" y="-5.5" width="11" height="11"/></g>
-            </svg></button></div></form>
+            </svg></button></div></div></form>
           </section>
           <div class="suggestions"><span class="hand-note">a few little sparks</span><button data-prompt="Help me find an unexpected idea for a creative project.">Dream something up <span>↗</span></button><button data-prompt="Help me turn a tangled thought into a clear plan.">Untangle a thought <span>↗</span></button><button data-prompt="Help me make a gentle plan for my day.">Make a little plan <span>↗</span></button></div>
           <div class="conversation-footnote"><span class="tiny-star">✧</span> Made for curiosity. Room for a little magic.<span class="demo-label">INTERACTIVE DEMO</span></div>
@@ -67,7 +76,7 @@
       </div>
     </section>
   </main>
-  <nav class="star-navigation" aria-label="Your universe"><div class="star-nav-line" aria-hidden="true"></div><button data-page="history" class="nav-star" aria-label="Conversation history"><svg><use href="#star"/></svg><span class="nav-label">Memories</span></button><button data-page="plugins" class="nav-star" aria-label="Plugin library"><svg><use href="#star"/></svg><span class="nav-label">The atelier</span></button><button data-page="schedule" class="nav-star" aria-label="Scheduled tasks"><svg><use href="#star"/></svg><span class="nav-label">Rituals</span></button><button data-page="settings" class="nav-star" aria-label="User settings"><svg><use href="#star"/></svg><span class="nav-label">Your world</span></button><span class="nav-end">✧</span></nav>
+  <nav class="star-navigation" aria-label="Your universe"><div class="star-nav-line" aria-hidden="true"></div><button data-page="history" class="nav-star" aria-label="Conversation history"><svg><use href="#star"/></svg><span class="nav-label">Memories</span></button><button data-page="plugins" class="nav-star" aria-label="Plugin library"><svg><use href="#star"/></svg><span class="nav-label">The atelier</span></button><button data-page="dashboard" class="nav-star" aria-label="Dashboard"><svg><use href="#star"/></svg><span class="nav-label">Dashboard</span></button><button data-page="settings" class="nav-star" aria-label="User settings"><svg><use href="#star"/></svg><span class="nav-label">Your world</span></button><span class="nav-end">✧</span></nav>
   <footer class="page-footer"><span>A little less ordinary.</span><div>THOUGHTFULLY YOURS <svg class="icon"><use href="#star"/></svg> ASTER</div><span class="footer-coordinates">EST. 2026 <span>↗</span></span></footer>
   <div class="page-transition" id="page-transition" aria-hidden="true"><span></span><svg><use href="#star"/></svg><span></span></div>
   <div class="toast" id="toast" role="status"></div>

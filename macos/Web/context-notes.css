@@ -208,8 +208,7 @@
 
 /* All paper label controls use the same ink handwriting as Memories. */
 #desktop-paper :is(.text-button,.outline-button,.solid-button,.nav-label),
-#desktop-paper .library-tabs button,
-#desktop-fold {
+#desktop-paper .library-tabs button {
   font-family:var(--hand);
   font-size:22px;
   font-weight:500;

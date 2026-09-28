@@ -2,7 +2,19 @@
 
 An artistic agent interaction demo inspired by hand-drawn celestial diagrams, warm paper, postcards, and tarot cards.
 
-The macOS envelope prototype is in `macos/`. Run `./script/build_and_run.sh` to build and open its native app; see [macOS instructions](macos/README.md).
+The macOS app is in `macos/`. Run `./script/build_and_run.sh` to build and open it; see [macOS instructions](macos/README.md). When a built DSH checkout is available, the Swift app starts one DSH Host and serves this Aster interface as its same-origin desktop UI. It keeps the WKWebView shell and does not use Electron.
+
+## DSH desktop mode
+
+Build DSH first, then run `./script/build_and_run.sh` from this directory. The script detects `~/Desktop/dsh` by default; set `ASTER_DSH_REPO=/path/to/dsh` for another checkout. The DSH Host must include the optional `frontendDistIndex` web-app configuration in this integration. Aster's Host adapter is `dist/aster-backend.js`; it uses the DSH HTTP RPC and one multiplexed WebSocket for live session state. DSH owns conversations, permissions, models, plugins, and credentials, while Aster owns their presentation. The Swift shell starts and stops the Host and handles only native window and folder operations. See [macOS instructions](macos/README.md) for requirements and lifecycle details.
+
+The connected interface loads plugin and model settings only when opened. Its conversation history is bounded in the browser, and it does not poll the Host. Browser-only preview mode remains available below, or through `./script/build_and_run.sh --offline`.
+
+This snapshot depends on the DSH compatibility changes recorded in [integrations/dsh](integrations/dsh/README.md), pinned to the upstream revision in that directory. They are not part of an unmodified official DSH release.
+
+The connected plugin library uses DSH inventory and management APIs, with tarot cards, bundle boxes, scope selection, search, favorites, and read-only explanations. See [plugin library behavior](dist/plugin-library.README.md). The eight current tarot originals and generation records are preserved in [design/tarot-v5](design/tarot-v5/README.md); the app loads only the compressed WebP derivatives.
+
+Run `node script/verify_plugin_library.cjs` for the isolated plugin presentation and interaction checks, and `swift build --package-path macos --product Aster` to compile the native shell.
 
 ## Run locally
 
@@ -25,7 +37,7 @@ Open http://localhost:4173.
 - Responsive layouts, keyboard navigation, accessible native dialogs
 - Optional WebMCP companion listing and enable/disable tools when the browser supports them
 
-## Demo boundaries
+## Browser demo boundaries
 
 All state is local to the browser in `aster-demo-v1`. AI replies are samples, plugin connections are simulated, and schedules do not execute background jobs. No accounts, API keys, or real integrations are required.
 

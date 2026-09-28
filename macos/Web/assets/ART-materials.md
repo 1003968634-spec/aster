@@ -5,7 +5,7 @@ Generated with the built-in `image_gen` tool on 2026-09-21. Original outputs rem
 ## Wax seal
 
 - File: `wax-seal-real.png`
-- Original: `/Users/sandman/.codex/generated_images/01a0c355-3e35-7fc1-b3a9-2c143cfbec09/exec-724f9e46-bb4f-4b3c-ac9b-94e99288ed12.png`
+- Original: `imagegen-output:01a0c355-3e35-7fc1-b3a9-2c143cfbec09/exec-724f9e46-bb4f-4b3c-ac9b-94e99288ed12.png`
 - Intended use: photographic red wax seal opening control, rendered at approximately 90 pixels. Preserve transparent alpha.
 
 Prompt:
@@ -15,7 +15,7 @@ Use case: product-mockup. Asset type: isolated photographic UI asset, not a mock
 ## Writing paper
 
 - File: `letter-paper-real.png`
-- Original: `/Users/sandman/.codex/generated_images/01a0c355-3e35-7fc1-b3a9-2c143cfbec09/exec-e7f94be1-a15c-4123-ab1e-689eb1939ba7.png`
+- Original: `imagegen-output:01a0c355-3e35-7fc1-b3a9-2c143cfbec09/exec-e7f94be1-a15c-4123-ab1e-689eb1939ba7.png`
 - Intended use: warm blank stationery background, full bleed; CSS may lay content directly over it.
 
 Prompt:

@@ -1,44 +1,82 @@
 /* One paper stamp travels from the envelope to its permanent home control. */
 :root {
-  --letter-top:104px;
-  --letter-side:34px;
-  --letter-bottom:74px;
-  --open-envelope-width:min(calc(100vw - 84px),calc((100vh - 76px) / .7094244));
+  --letter-top:46px;
+  --letter-side:18px;
+  --letter-bottom:20px;
+  --open-envelope-width:min(calc(100vw - 40px),calc((100vh - 76px) / .7094244));
   --open-envelope-height:calc(var(--open-envelope-width) * .566);
 }
 #desktop-paper,.detail-dialog::backdrop {inset:var(--letter-top) var(--letter-side) var(--letter-bottom);}
 .detail-dialog {inset:var(--letter-top) var(--letter-side) var(--letter-bottom);margin:auto;max-height:calc(100vh - var(--letter-top) - var(--letter-bottom) - 28px);}
-/* The open envelope lies in the screen plane. A short, flat flap fold never
-   adds a camera perspective, and keeps the complete silhouette in the window. */
-.desktop-envelope {transition-duration:.72s;transition-timing-function:cubic-bezier(.33,0,.2,1);}
-.envelope-flap {transform:scaleY(1);transition:transform .72s cubic-bezier(.33,0,.2,1),filter .72s;}
-:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="extracting"],[data-envelope="open"],[data-envelope="folding"][data-envelope-stage="collecting"],[data-envelope-stage="stowing"]) .desktop-envelope {
-  width:var(--open-envelope-width);
-  height:var(--open-envelope-height);
-  top:calc(100vh - 30px - var(--open-envelope-height) / 2);
+/* The letter first clears a real pocket, then grows into the workspace. */
+.desktop-envelope {
+  transition:left .8s cubic-bezier(.33,0,.2,1),top .8s cubic-bezier(.33,0,.2,1),width .8s cubic-bezier(.33,0,.2,1),height .8s cubic-bezier(.33,0,.2,1),transform .8s cubic-bezier(.33,0,.2,1),visibility 0s;
+}
+.envelope-flap {transform:perspective(1200px) rotateX(0deg);transition:transform .8s cubic-bezier(.32,.02,.18,1);}
+.envelope-flap-paper,.envelope-flap-underside {transition:none;}
+/* Keep the original complete photograph at rest. Its baked flap shadow leaves
+   only while the actual photographed flap lifts; it returns after the fold. */
+:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="peeking"],[data-envelope-stage="extracting"],[data-envelope-stage="releasing"],[data-envelope="open"],[data-envelope="folding"]) .envelope-closed-art {opacity:0;}
+:root:is([data-envelope-stage="returning"],[data-envelope-stage="settling"],[data-envelope-stage="sealed"]) .envelope-closed-art {opacity:1;}
+:root:is([data-envelope-stage="returning"],[data-envelope-stage="settling"]) .envelope-closed-art {transition:none;}
+:root[data-envelope="sealed"] :is(.envelope-lining,.envelope-back,.envelope-flap,.envelope-tucked-letter) {visibility:hidden;}
+:root[data-envelope="opening"][data-envelope-stage="collecting"] .envelope-flap {visibility:hidden;}
+:root:is([data-envelope-stage="returning"],[data-envelope-stage="settling"]) #desktop-envelope .envelope-flap {visibility:hidden;}
+#desktop-pocket-mask .envelope-closing-photo {opacity:0;transition:none;}
+:root[data-envelope-stage="closing"] #desktop-pocket-mask .envelope-closing-photo {opacity:1;transition:opacity .14s ease .62s;}
+:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="peeking"],[data-envelope-stage="extracting"],[data-envelope-stage="releasing"],[data-envelope="open"],[data-envelope="folding"][data-envelope-stage="collecting"],[data-envelope-stage="gathering"],[data-envelope-stage="stowing"],[data-envelope-stage="closing"]) .desktop-envelope {
+  left:50%;width:var(--open-envelope-width);height:var(--open-envelope-height);
+  top:calc(100vh - 40px - var(--open-envelope-height) / 2);
   transform:translate(-50%,-50%);
 }
-:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="extracting"],[data-envelope="open"],[data-envelope="folding"][data-envelope-stage="collecting"],[data-envelope-stage="stowing"]) .envelope-flap {
-  transform:scaleY(-.35);filter:drop-shadow(0 -1px 1px #58452f28);
+:root:is([data-envelope-stage="releasing"][data-envelope="opening"],[data-envelope="open"][data-envelope-stage="open"]) .desktop-envelope {
+  top:calc(100vh + var(--open-envelope-height) * 1.5 + 30px);pointer-events:none;
 }
-:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="extracting"],[data-envelope="open"],[data-envelope="folding"]):not([data-envelope-stage="settling"]) :is(.envelope-address,.envelope-postmark,.envelope-open-hint,.envelope-cancellation) {opacity:0;}
-:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="extracting"],[data-envelope="open"],[data-envelope="folding"]):not([data-envelope-stage="settling"]) .envelope-seal {
+:root[data-envelope="open"] .desktop-envelope {visibility:hidden;}
+:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="peeking"],[data-envelope-stage="extracting"],[data-envelope-stage="releasing"],[data-envelope="open"],[data-envelope="folding"][data-envelope-stage="collecting"],[data-envelope-stage="gathering"],[data-envelope-stage="stowing"]) .envelope-flap {
+  transform:perspective(1200px) rotateX(165deg);
+}
+:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="peeking"],[data-envelope-stage="extracting"],[data-envelope-stage="releasing"],[data-envelope="open"],[data-envelope="folding"]):not([data-envelope-stage="settling"]) :is(.envelope-address,.envelope-postmark,.envelope-open-hint,.envelope-cancellation) {opacity:0;}
+:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="peeking"],[data-envelope-stage="extracting"],[data-envelope-stage="releasing"],[data-envelope="open"],[data-envelope="folding"]):not([data-envelope-stage="settling"]) .envelope-seal {
   opacity:0;transform:translateY(18px) rotate(-5deg) scale(.9);pointer-events:none;
 }
-:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="extracting"],[data-envelope="open"],[data-envelope="folding"]):not([data-envelope-stage="settling"]) .desktop-chrome {left:49px;top:21px;transform:rotate(0);}
-:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="extracting"],[data-envelope="open"]) .desktop-top-drag {display:block;}
+.desktop-chrome {
+  left:calc(var(--sealed-center-x, 50%) - var(--envelope-width) / 2 + 12px);
+  top:calc(var(--sealed-center-y, 50%) - var(--envelope-height) / 2 + var(--envelope-width) * .01047 - 12px);
+  transform:rotate(-1.2deg);
+  transition:top .8s cubic-bezier(.33,0,.2,1),left .8s cubic-bezier(.33,0,.2,1),transform .8s ease;
+}
+:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="peeking"],[data-envelope-stage="extracting"],[data-envelope-stage="releasing"],[data-envelope="open"],[data-envelope="folding"][data-envelope-stage="collecting"],[data-envelope-stage="gathering"],[data-envelope-stage="stowing"],[data-envelope-stage="closing"]) .desktop-chrome {left:18px;top:14px;transform:rotate(-1deg);}
+:root.native-frame-changing :is(.desktop-envelope,.desktop-chrome) {transition:none !important;}
+:root:is([data-envelope-stage="unfolding"],[data-envelope-stage="peeking"],[data-envelope-stage="extracting"],[data-envelope-stage="releasing"],[data-envelope="open"]) .desktop-top-drag {display:block;}
+#desktop-letter-stage {position:fixed;inset:0;z-index:3;pointer-events:none;}
+:root:is([data-envelope-stage="peeking"],[data-envelope-stage="extracting"],[data-envelope-stage="gathering"],[data-envelope-stage="stowing"],[data-envelope-stage="closing"]) #desktop-letter-stage {clip-path:inset(0 0 40px);}
 #desktop-paper {
-  transform:translate3d(0,125px,0) scale(.65,.6);transform-origin:50% 86%;
-  transition:transform .78s cubic-bezier(.22,.7,.2,1),opacity .22s ease,visibility 0s .78s;
+  z-index:auto;transform-origin:50% 0;
+  transform:translate3d(0,var(--letter-inserted-y,300px),0) scale(var(--letter-pocket-scale,.55));
+  opacity:0;visibility:hidden;transition:transform .8s cubic-bezier(.32,.02,.18,1);
 }
-:root:is([data-envelope-stage="extracting"],[data-envelope="open"],[data-envelope="folding"][data-envelope-stage="collecting"]) #desktop-paper {
-  opacity:1;visibility:visible;transform:translate3d(0,0,0) scale(1);transition-delay:0s;
+#desktop-paper .gift-box {transition:opacity .3s ease;}
+:root[data-envelope="opening"]:not([data-envelope-stage="releasing"]) #desktop-paper .gift-box {opacity:0;}
+#desktop-pocket-mask {
+  z-index:4;filter:none;pointer-events:none;visibility:hidden;container-type:normal;
 }
-:root[data-envelope-stage="stowing"] #desktop-paper {
-  visibility:visible;transform:translate3d(0,125px,0) scale(.65,.6);opacity:0;
-  transition-duration:.67s,.18s,0s;transition-delay:0s,.49s,.67s;
+#desktop-pocket-mask .envelope-closing-flap {visibility:hidden;}
+:root:is([data-envelope-stage="peeking"],[data-envelope-stage="extracting"],[data-envelope-stage="releasing"],[data-envelope="folding"]) #desktop-pocket-mask {visibility:visible;}
+:root[data-envelope-stage="closing"] #desktop-pocket-mask .envelope-closing-flap {visibility:visible;}
+:root[data-envelope-stage="closing"] #desktop-envelope .envelope-flap {visibility:hidden;}
+:root:is([data-envelope-stage="returning"],[data-envelope-stage="settling"]) #desktop-pocket-mask {visibility:hidden;}
+:root:is([data-envelope-stage="peeking"],[data-envelope-stage="extracting"],[data-envelope-stage="releasing"],[data-envelope="open"],[data-envelope="folding"]) #desktop-paper {opacity:1;visibility:visible;}
+:root:is([data-envelope-stage="extracting"],[data-envelope-stage="gathering"]) #desktop-paper {
+  transform:translate3d(0,var(--letter-extracted-y,0px),0) scale(var(--letter-pocket-scale,.55));
 }
+:root:is([data-envelope-stage="releasing"],[data-envelope="open"],[data-envelope="folding"][data-envelope-stage="collecting"]) #desktop-paper {transform:translate3d(0,0,0) scale(1);}
+:root:is([data-envelope-stage="stowing"],[data-envelope-stage="closing"]) #desktop-paper {
+  transform:translate3d(0,var(--letter-inserted-y,300px),0) scale(var(--letter-pocket-scale,.55));
+}
+:root:is([data-envelope-stage="returning"],[data-envelope-stage="settling"]) #desktop-paper {visibility:hidden;opacity:0;transition:none;}
 :root:is(.postage-in-transit,.postage-delivered) .envelope-stamp {visibility:hidden;}
+:root.postage-return-landed .envelope-stamp {visibility:visible;}
 :root.postage-in-transit :is(.home-postage,.postal-new-chat) {visibility:hidden;pointer-events:none;}
 #desktop-paper .gift-box>.masthead {justify-content:space-between;height:100px;gap:25px;}
 #desktop-paper .masthead .header-greeting {
@@ -115,7 +153,7 @@
 }
 .postage-flight [hidden] {display:none;}
 @media(max-height:760px) {
-  :root {--letter-top:88px;--letter-side:28px;--letter-bottom:62px;}
+  :root {--letter-top:42px;--letter-side:15px;--letter-bottom:16px;}
   #desktop-paper .gift-box>.masthead {height:86px;}
   #desktop-paper .gift-box .home-page {min-height:365px;padding-top:4px;}
   #desktop-paper .home-postage {width:80px;height:82px;flex-basis:80px;margin-top:-2px;}
@@ -127,9 +165,10 @@
   #desktop-paper .gift-box .suggestions {margin-top:13px;}
 }
 @media(prefers-reduced-motion:reduce) {
-  .postal-new-chat,.postal-star-label {transition:none;}
+  #desktop-paper .gift-box {transition:none !important;}
+  .postal-new-chat,.postal-star-label,.envelope-flap-paper,.envelope-flap-underside,.envelope-closed-art,.envelope-open-body,#desktop-pocket-mask {transition:none !important;}
 }
-:root.reduce-motion .postal-new-chat,:root.reduce-motion .postal-star-label {transition:none;}
+:root.reduce-motion :is(.postal-new-chat,.postal-star-label,.envelope-flap-paper,.envelope-flap-underside,.envelope-closed-art,.envelope-open-body,#desktop-pocket-mask) {transition:none !important;}
 @media(max-height:670px) {
   :root {--letter-top:76px;--letter-bottom:52px;}
   #desktop-paper .gift-box>.masthead {height:75px;}

@@ -1,23 +1,27 @@
-/* Compact, in-place paper selectors. These are local prototype preferences. */
+/* Compact, in-place paper selectors for local demo or DSH-backed sessions. */
 (() => {
   'use strict';
   const main=document.getElementById('main');
   if (!main || !document.getElementById('desktop-paper')) return;
+  const backend=window.AsterBackend;
+  const backendEnabled=Boolean(backend?.enabled);
   const key='aster-desktop-context-v1';
-  const modes=[{id:'approval',name:'Request approval'},{id:'full',name:'Full access'}];
+  let modes=backendEnabled?[]:[{id:'approval',name:'Request approval'},{id:'full',name:'Full access'}];
   const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const icon=(name,extra='')=>`<svg class="icon ${extra}" aria-hidden="true"><use href="#${name}"/></svg>`;
   const validPath=item=>item && typeof item.path==='string' && item.path.startsWith('/') && item.path.length<=4096;
-  const workspace=item=>({path:item.path,name:String(item.name||item.path.split('/').filter(Boolean).pop()||item.path).slice(0,255)});
+  const workspace=item=>({id:String(item.id??item.workspaceId??item.path),path:item.path,name:String(item.name||item.path?.split('/').filter(Boolean).pop()||item.path||'Workspace').slice(0,255)});
+  const modeNames={'workspace-write':'Workspace write','read-only':'Read only','danger-full-access':'Unrestricted access'};
   let saved={};
   try {saved=JSON.parse(localStorage.getItem(key)||'{}')||{};} catch {}
   const seen=new Set();
   const state={
-    workspaces:(Array.isArray(saved.workspaces)?saved.workspaces:[]).filter(item=>{
+    workspaces:(backendEnabled?[]:Array.isArray(saved.workspaces)?saved.workspaces:[]).filter(item=>{
       if (!validPath(item) || seen.has(item.path)) return false;
       seen.add(item.path);return true;
     }).map(workspace),
-    mode:modes.some(mode=>mode.id===saved.mode)?saved.mode:'approval'
+    mode:backendEnabled?'':modes.some(mode=>mode.id===saved.mode)?saved.mode:'approval',
+    selectedWorkspaceId:null
   };
   let selector=null,choosing=null,tearing=false;
   const reduced=()=>document.documentElement.classList.contains('reduce-motion') || matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -31,15 +35,29 @@
   status.setAttribute('aria-live','polite');
   rail.append(status);
 
-  function snapshot() {return {workspaces:state.workspaces.map(item=>({...item})),mode:state.mode};}
+  function snapshot() {return {workspaces:state.workspaces.map(item=>({...item})),mode:state.mode,selectedWorkspaceId:state.selectedWorkspaceId};}
   function announce(text) {status.textContent=text;}
   function persist() {
-    try {localStorage.setItem(key,JSON.stringify(state));}
-    catch {
-      if (typeof window.toast==='function') window.toast('Your choices could not be saved on this Mac.');
-      else announce('Your choices could not be saved on this Mac.');
+    if (!backendEnabled) {
+      try {localStorage.setItem(key,JSON.stringify(state));}
+      catch {
+        if (typeof window.toast==='function') window.toast('Your choices could not be saved on this Mac.');
+        else announce('Your choices could not be saved on this Mac.');
+      }
     }
     window.dispatchEvent(new CustomEvent('aster-context-changed',{detail:snapshot()}));
+  }
+  function applyBackendContext(detail) {
+    if (!backendEnabled || !detail) return;
+    state.workspaces=(Array.isArray(detail.workspaces)?detail.workspaces:[]).filter(validPath).map(workspace);
+    state.selectedWorkspaceId=String(detail.selectedWorkspaceId??'');
+    modes=(Array.isArray(detail.permissionPresets)?detail.permissionPresets:[]).map(item=>{
+      const id=String(typeof item==='string'?item:item.value??item.id??item.presetId??item.key??'');
+      const supplied=String(typeof item==='string'?id:item.label??item.name??item.title??id);
+      return {id,name:supplied===id?modeNames[id]??id:supplied};
+    }).filter(item=>item.id);
+    state.mode=String(detail.selectedPermissionPresetId??'');
+    render();
   }
   function fanStyle(index,count) {
     const angle=count===1?0:-4+index/(count-1)*8;
@@ -54,14 +72,15 @@
   }
   function render() {
     const count=state.workspaces.length+1;
-    const workspaces=state.workspaces.map((item,index)=>`<article class="fan-note workspace-note ${index===0?'is-active':''}" data-workspace="${index}" style="${fanStyle(index,count)}">
-      <button type="button" class="workspace-activate" data-primary="${index}" title="${escape(item.path)}" aria-label="Move ${escape(item.name)} to top"><span class="workspace-name">${escape(item.name)}</span></button>
-      <button type="button" class="workspace-remove" data-remove="${index}" aria-label="Remove ${escape(item.name)} from selected workspaces">${icon('close')}</button></article>`).join('')+
+    const workspaces=state.workspaces.map((item,index)=>`<article class="fan-note workspace-note ${(backendEnabled?item.id===state.selectedWorkspaceId:index===0)?'is-active':''}" data-workspace="${index}" style="${fanStyle(index,count)}">
+      <button type="button" class="workspace-activate" data-primary="${index}" title="${escape(item.path)}" aria-label="${backendEnabled?'Use':'Move'} ${escape(item.name)} ${backendEnabled?'workspace':'to top'}"><span class="workspace-name">${escape(item.name)}</span></button>
+      ${backendEnabled?'':`<button type="button" class="workspace-remove" data-remove="${index}" aria-label="Remove ${escape(item.name)} from selected workspaces">${icon('close')}</button>`}</article>`).join('')+
       `<button type="button" class="workspace-add fan-note" style="${fanStyle(count-1,count)}" ${choosing?'disabled':''}>${icon('plus')}<span>${choosing?'Choosing…':'Add workspace'}</span></button>`;
-    const ordered=[modes.find(item=>item.id===state.mode),...modes.filter(item=>item.id!==state.mode)];
-    const access=ordered.map((item,index)=>`<button type="button" class="fan-note mode-option ${index===0?'selected':''}" data-mode="${item.id}" aria-pressed="${state.mode===item.id}" style="${fanStyle(index,ordered.length)}"><span class="mode-title">${item.name}</span>${index===0?icon('check','mode-check'):''}</button>`).join('');
+    const selected=modes.find(item=>item.id===state.mode);
+    const ordered=selected?[selected,...modes.filter(item=>item.id!==state.mode)]:modes;
+    const access=ordered.length?ordered.map((item,index)=>`<button type="button" class="fan-note mode-option ${state.mode===item.id?'selected':''}" data-mode="${escape(item.id)}" aria-pressed="${state.mode===item.id}" style="${fanStyle(index,ordered.length)}"><span class="mode-title">${escape(item.name)}</span>${state.mode===item.id?icon('check','mode-check'):''}</button>`).join(''):'<span class="fan-note mode-option">Loading modes…</span>';
     rail.querySelectorAll('.note-stack').forEach(item=>item.remove());
-    status.insertAdjacentHTML('beforebegin',stack('workspaces','Workspaces',workspaces,count)+stack('access','Access mode',access,ordered.length));
+    status.insertAdjacentHTML('beforebegin',stack('workspaces',backendEnabled?'Next workspace':'Workspaces',workspaces,count)+stack('access','Access mode',access,Math.max(1,ordered.length)));
     rail.querySelectorAll('.note-trigger').forEach(button=>{
       const kind=button.parentElement.dataset.selector;
       button.addEventListener('click',()=>openSelector(kind));
@@ -76,13 +95,25 @@
       if (event.target===fan && event.propertyName==='height' && fan.parentElement.classList.contains('is-open')) fan.scrollTop=fan.scrollHeight;
     }));
     rail.querySelectorAll('[data-remove]').forEach(button=>button.addEventListener('click',()=>removeWorkspace(Number(button.dataset.remove))));
-    rail.querySelectorAll('[data-primary]').forEach(button=>button.addEventListener('click',()=>{
+    rail.querySelectorAll('[data-primary]').forEach(button=>button.addEventListener('click',async()=>{
       if (tearing || choosing) return;
+      if (backendEnabled) {
+        const item=state.workspaces[Number(button.dataset.primary)];
+        if (!item) return;
+        try {await backend.setWorkspace(item.id);state.selectedWorkspaceId=item.id;persist();selector=null;render();focusTrigger('workspaces');}
+        catch (error) {window.toast?.(`Could not select workspace: ${error?.message||error}`);}
+        return;
+      }
       const [item]=state.workspaces.splice(Number(button.dataset.primary),1);
       if (item) state.workspaces.unshift(item);
       persist();selector=null;render();focusTrigger('workspaces');
     }));
-    rail.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>{
+    rail.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',async()=>{
+      if (backendEnabled) {
+        try {await backend.setPermission(button.dataset.mode);state.mode=button.dataset.mode;persist();selector=null;render();focusTrigger('access');}
+        catch (error) {window.toast?.(`Could not change access mode: ${error?.message||error}`);}
+        return;
+      }
       state.mode=button.dataset.mode;
       persist();selector=null;render();focusTrigger('access');
     }));
@@ -130,13 +161,23 @@
     choosing=crypto.randomUUID();render();
     bridge.postMessage({action:'chooseWorkspaces',requestId:choosing});
   }
-  window.addEventListener('aster-workspaces-picked',event=>{
+  window.addEventListener('aster-workspaces-picked',async event=>{
     if (!choosing || event.detail?.requestId!==choosing) return;
     choosing=null;
     let added=0;
     for (const item of Array.isArray(event.detail.items)?event.detail.items:[]) {
       if (!validPath(item) || state.workspaces.some(existing=>existing.path===item.path)) continue;
-      state.workspaces.push(workspace(item));added++;
+      if (backendEnabled) {
+        try {
+          const created=await backend.createWorkspace(item.path);
+          const createdItem=typeof created==='string'?{id:created}:created?.workspace??created??{};
+          const entry=workspace({...item,...createdItem});
+          state.workspaces.push(entry);
+          await backend.setWorkspace(entry.id);
+          state.selectedWorkspaceId=entry.id;
+          added++;
+        } catch (error) {window.toast?.(`Could not add workspace: ${error?.message||error}`);}
+      } else {state.workspaces.push(workspace(item));added++;}
     }
     if (added) persist();
     render();
@@ -156,7 +197,7 @@
       const timer=setTimeout(resolve,650);
       note.addEventListener('animationend',event=>{if(event.target===note){clearTimeout(timer);resolve();}},{once:true});
     });
-    // Remove only the selected path from this prototype; never touch the folder.
+    // The local demo removes a selector card only; it never touches the folder.
     state.workspaces=state.workspaces.filter(existing=>existing.path!==item.path);
     tearing=false;persist();render();
     if (selector==='workspaces') {
@@ -193,5 +234,9 @@
   }).observe(document.documentElement,{attributes:true,attributeFilter:['data-envelope']});
   window.addEventListener('resize',fitFans);
   render();syncPage();
+  if (backendEnabled) {
+    window.addEventListener('aster-backend-context',event=>applyBackendContext(event.detail));
+    applyBackendContext(window.asterBackendContext);
+  }
   window.asterContext=Object.freeze({snapshot});
 })();

@@ -37,9 +37,15 @@
     page.setAttribute('aria-label', 'Memories');
     const stack = page.querySelector('.postcard-stack');
     if (!stack) return;
-    page.querySelectorAll('.subpage-top,.subpage-heading,.history-note').forEach(element => element.remove());
+    // Keep the page title and its New conversation action. The desktop paper
+    // gives them a compact letterhead above the postcard pile.
+    page.querySelectorAll('.subpage-top,.history-note').forEach(element => element.remove());
     const layout = page.querySelector('.history-layout');
-    const memories = allMemories();
+    const connected = typeof backendEnabled !== 'undefined' && backendEnabled;
+    const archived = connected && backendState.historyView === 'archived';
+    const memories = connected
+      ? backendHistoryItems().slice(0, backendState.historyVisible)
+      : allMemories();
     const fragment = document.createDocumentFragment();
     let hovered = null;
     let focused = null;
@@ -61,8 +67,13 @@
       slot.style.setProperty('--shift', `${[0, 12, -8, 8, -3][index % 5]}px`);
       const button = node('button', `postcard ${index === 0 ? 'latest' : 'tucked'}`);
       button.type = 'button';
-      button.dataset.memory = memory.id;
-      button.setAttribute('aria-label', `Open conversation: ${memory.title}, ${formatDate(memory.date)}`);
+      if (archived) {
+        button.dataset.unarchive = memory.id;
+        button.setAttribute('aria-label', `Unarchive conversation: ${memory.title}, ${formatDate(memory.date)}`);
+      } else {
+        button.dataset.memory = memory.id;
+        button.setAttribute('aria-label', `Open conversation: ${memory.title}, ${formatDate(memory.date)}`);
+      }
 
       const face = node('span', 'postcard-face');
       const address = node('span', 'postcard-address');
@@ -70,13 +81,13 @@
       const heading = node('span', 'postcard-title', memory.title);
       heading.title = memory.title;
       const meta = node('span', 'postcard-meta');
-      meta.append(node('span', 'postcard-category', memory.category || 'YOUR CONVERSATION'));
+      meta.append(node('span', 'postcard-category', archived ? 'ARCHIVED CONVERSATION' : memory.pinned ? 'PINNED CONVERSATION' : memory.category || 'YOUR CONVERSATION'));
       const date = node('time', 'postcard-date', formatDate(memory.date));
-      date.dateTime = memory.date;
+      if (memory.date) date.dateTime = memory.date;
       meta.append(date);
       const content = node('span', 'postcard-content');
       content.append(node('span', 'postcard-excerpt', memory.excerpt || ''));
-      const open = node('span', 'postcard-open', 'Pick up the thread');
+      const open = node('span', 'postcard-open', archived ? 'Unarchive' : 'Pick up the thread');
       open.append(node('span', '', '↗'));
       content.append(open);
       address.append(heading, meta);
@@ -119,7 +130,7 @@
       slots.push(slot);
       fragment.append(slot);
     });
-    if (!memories.length) fragment.append(node('p', 'postcard-empty', 'Your conversations will be kept here.'));
+    if (!memories.length) fragment.append(node('p', 'postcard-empty', archived ? 'No archived conversations.' : 'Your conversations will be kept here.'));
     stack.replaceChildren(fragment);
 
     function fitPile() {

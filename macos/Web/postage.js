@@ -1,4 +1,4 @@
-/* The same paper star carries the stamp in both directions, before either fold. */
+/* The paper star carries the stamp in both directions, then returns to the wax seal. */
 (() => {
   'use strict';
   const root = document.documentElement;
@@ -63,7 +63,7 @@
       const probe = document.createElement('div');
       probe.className = 'desktop-envelope';
       probe.setAttribute('aria-hidden', 'true');
-      probe.style.cssText = 'visibility:hidden;pointer-events:none;transition:none;width:var(--envelope-width);height:var(--envelope-height);top:50%;transform:translate(-50%,-46%) rotate(-1.2deg)';
+      probe.style.cssText = 'visibility:hidden;pointer-events:none;transition:none;width:var(--envelope-width);height:var(--envelope-height);left:var(--sealed-center-x,50%);top:var(--sealed-center-y,50%);transform:translate(-50%,-50%) rotate(-1.2deg)';
       const stamp = document.createElement('div');
       stamp.className = 'envelope-stamp';
       probe.append(stamp);
@@ -77,13 +77,30 @@
     return paperBox(home);
   }
 
+  function sealedSealBox() {
+    // The real seal is moving with the envelope while it closes. Measure a
+    // quiet closed envelope so the courier has a stable final destination.
+    const probe = document.createElement('div');
+    probe.className = 'desktop-envelope';
+    probe.setAttribute('aria-hidden', 'true');
+    probe.style.cssText = 'visibility:hidden;pointer-events:none;transition:none;width:var(--envelope-width);height:var(--envelope-height);left:var(--sealed-center-x,50%);top:var(--sealed-center-y,50%);transform:translate(-50%,-50%) rotate(-1.2deg)';
+    const seal = document.createElement('button');
+    seal.className = 'envelope-seal';
+    seal.type = 'button';
+    probe.append(seal);
+    document.body.append(probe);
+    const target = box(seal);
+    probe.remove();
+    return target;
+  }
+
   function stop() {
     if (!active) return;
     const operation = active;
     active = null;
     cancelAnimationFrame(operation.frame);
     operation.layer.remove();
-    root.classList.remove('postage-in-transit');
+    root.classList.remove('postage-in-transit', 'postage-return-landed');
     operation.resolve();
   }
 
@@ -93,13 +110,15 @@
     const start = box(origin);
     let target = destinationBox(returning);
     let parked = paperBox(newChat);
-    root.classList.remove('postage-delivered');
+    root.classList.remove('postage-delivered', 'postage-return-landed');
     if (reduced) {
       root.classList.toggle('postage-delivered', !returning);
       return Promise.resolve();
     }
 
-    const seal = center(document.getElementById('envelope-seal').getBoundingClientRect());
+    const seal = returning
+      ? sealedSealBox()
+      : center(document.getElementById('envelope-seal').getBoundingClientRect());
     const layer = document.createElement('div');
     layer.className = `postage-flight${returning ? ' postage-flight-return' : ''}`;
     layer.setAttribute('aria-hidden', 'true');
@@ -115,7 +134,13 @@
     const done = new Promise(resolve => { operation.resolve = resolve; });
     active = operation;
     const began = performance.now();
-    const duration = returning ? 1900 : 1780;
+    // Returning takes a little longer: the stamp lands first, then the star
+    // visibly travels back to the closed wax seal.
+    // Arrival on the letter coincides with the final part of extraction;
+    // on return, the stamp lands only after the pocket has swallowed the sheet
+    // and the flap is nearly shut.
+    const duration = returning ? 3840 : 3100;
+    const returnLanding = duration - 540;
     const viewport = {width: innerWidth, height: innerHeight};
     const initialAngle = returning ? 5 : 4.8;
     const finalAngle = returning ? 4.8 : 5;
@@ -133,6 +158,15 @@
       if (viewport.width !== innerWidth || viewport.height !== innerHeight) {
         target = destinationBox(returning);
         parked = paperBox(newChat);
+        if (returning) {
+          const nextSeal = sealedSealBox();
+          seal.x = nextSeal.x;
+          seal.y = nextSeal.y;
+        } else {
+          const nextSeal = center(document.getElementById('envelope-seal').getBoundingClientRect());
+          seal.x = nextSeal.x;
+          seal.y = nextSeal.y;
+        }
         viewport.width = innerWidth;
         viewport.height = innerHeight;
       }
@@ -163,8 +197,9 @@
         angle = initialAngle - 9*p;
         lift = p;
         starAngle = 16 + 11*p;
-      } else if (elapsed < duration - 180) {
-        const p = ease((elapsed - 520) / (duration - 700));
+      } else if (elapsed < (returning ? returnLanding : duration - 180)) {
+        const travelEnd = returning ? returnLanding : duration - 180;
+        const p = ease((elapsed - 520) / (travelEnd - 520));
         const lifted = {x: start.x - 14, y: start.y - 28};
         const crest = Math.max(40, Math.min(start.y, target.y) - (returning ? 76 : 98));
         stampAt = point(lifted, {x: lifted.x - 88, y: crest}, {x: target.x - 100, y: crest}, target, p);
@@ -187,24 +222,31 @@
           starScaleX = mix(1, parked.width / 57, p);
           starScaleY = mix(1, parked.height / 65, p);
         }
+      } else if (returning) {
+        // The stamp is now back on the envelope. Keep it visible while the
+        // courier leaves the stamp and returns to the wax seal.
+        root.classList.add('postage-return-landed');
+        const p = ease((elapsed - returnLanding) / (duration - returnLanding));
+        stampAt = target;
+        scaleX = target.width / start.width;
+        scaleY = target.height / start.height;
+        angle = finalAngle;
+        const carried = {x: target.x + carryOffset.x*scaleX, y: target.y + carryOffset.y*scaleY};
+        starAt = point(carried, {x: carried.x + 24, y: carried.y - 30},
+          {x: seal.x - 20, y: seal.y - 42}, seal, p);
+        starAngle = mix(27, -10, p);
+        starOpacity = p < .84 ? 1 : mix(1, 0, ease((p - .84) / .16));
+        starScaleX = starScaleY = mix(1, .82, p);
       } else {
         const p = ease((elapsed - duration + 180) / 180);
         stampAt = target;
         scaleX = target.width / start.width;
         scaleY = target.height / start.height;
         angle = finalAngle;
-        const carried = {x: target.x + carryOffset.x*scaleX, y: target.y + carryOffset.y*scaleY};
-        if (returning) {
-          starAt = {x: carried.x - p*27, y: carried.y - p*36};
-          starAngle = 27 - p*32;
-          starOpacity = 1 - p;
-          starScaleX = starScaleY = mix(.72, 1, starOpacity);
-        } else {
-          starAt = parked;
-          starAngle = -5;
-          starScaleX = parked.width / 57;
-          starScaleY = parked.height / 65;
-        }
+        starAt = parked;
+        starAngle = -5;
+        starScaleX = parked.width / 57;
+        starScaleY = parked.height / 65;
       }
       pose(stampAt, scaleX, scaleY, angle, lift);
       star.style.transform = `translate(${starAt.x - 28.5}px,${starAt.y - 32.5}px) rotate(${starAngle}deg) scale(${starScaleX},${starScaleY})`;

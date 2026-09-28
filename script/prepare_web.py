@@ -16,7 +16,6 @@ def desktop_letter_markup(source):
         ('conversation paper layers', '<div class="paper-depth" aria-hidden="true"><i class="paper-layer layer-back"></i><i class="paper-layer layer-middle"></i><i class="paper-layer layer-front"></i></div>'),
         ('conversation paper corners', '<span class="paper-corner top-left" aria-hidden="true"></span><span class="paper-corner bottom-right" aria-hidden="true"></span>'),
         ('conversation welcome', '<div class="empty-conversation" id="empty-conversation"><div class="welcome-star"><svg><use href="#star"/></svg><i>✧</i></div><p class="welcome-kicker">A quiet mind. An open page.</p><h1>Every good thing<br>begins with <em>a thought.</em></h1><p class="welcome-note">Bring your questions, your wild ideas,<br>or just yourself. I’m here.</p></div>'),
-        ('old new-conversation row', '<div class="conversation-topline"><span><span class="small-aster">✳</span> A LITTLE ROOM FOR BIG IDEAS</span><button class="text-button" id="new-chat">New conversation <svg class="icon"><use href="#plus"/></svg></button></div>'),
         ('website suggestions', '<div class="suggestions"><span class="hand-note">a few little sparks</span><button data-prompt="Help me find an unexpected idea for a creative project.">Dream something up <span>↗</span></button><button data-prompt="Help me turn a tangled thought into a clear plan.">Untangle a thought <span>↗</span></button><button data-prompt="Help me make a gentle plan for my day.">Make a little plan <span>↗</span></button></div>'),
         ('conversation footnote', '<div class="conversation-footnote"><span class="tiny-star">✧</span> Made for curiosity. Room for a little magic.<span class="demo-label">INTERACTIVE DEMO</span></div>'),
         ('footer caption', '<span>A little less ordinary.</span>'),
@@ -26,6 +25,13 @@ def desktop_letter_markup(source):
         if source.count(markup) != 1:
             raise SystemExit(f"Expected exactly one {label} in the website template")
         source = source.replace(markup, "", 1)
+    # The desktop has its own new-conversation postage button. Keep the DSH
+    # connection indicator and retry action from the website row on the sheet.
+    web_topline = '<div class="conversation-topline"><span><span class="small-aster">✳</span> A LITTLE ROOM FOR BIG IDEAS <span id="connection-status" class="connection-status" role="status"></span><button type="button" class="connection-retry" id="reconnect-button" hidden>Retry</button></span><button class="text-button" id="new-chat">New conversation <svg class="icon"><use href="#plus"/></svg></button></div>'
+    desktop_topline = '<div class="conversation-topline"><span><span class="small-aster">✳</span><span id="connection-status" class="connection-status" role="status"></span></span><button type="button" class="connection-retry" id="reconnect-button" hidden>Retry</button></div>'
+    if source.count(web_topline) != 1:
+        raise SystemExit("Expected exactly one website conversation topline")
+    source = source.replace(web_topline, desktop_topline, 1)
     return source
 
 
@@ -54,6 +60,7 @@ for path in destination.rglob("*"):
         source = re.sub(r'\s*<link[^>]+https://fonts\.[^>]+>', "", source)
         source = source.replace('href="/style.css', 'href="./style.css')
         source = source.replace('href="/tarot.css', 'href="./tarot.css')
+        source = source.replace('src="/aster-backend.js', 'src="./aster-backend.js')
         source = source.replace('src="/app.js', 'src="./app.js')
         source = source.replace("</head>", '<link rel="stylesheet" href="./assets/fonts/web-fonts.css" />\n'
             '  <link rel="stylesheet" href="./envelope.css" />\n'

@@ -1,0 +1,202 @@
+{
+  "version": "aster-tarot-classified-v5",
+  "created": "2026-09-24",
+  "generationMode": "built-in image_gen precise-object-edit",
+  "runtimeDerivative": {
+    "format": "WebP",
+    "width": 560,
+    "quality": 88,
+    "method": 6,
+    "resampling": "Lanczos, aspect ratio preserved",
+    "crop": false,
+    "alpha": false,
+    "totalBytes": 434940,
+    "decodedRGBABytesIfAllEightLoaded": 17568320
+  },
+  "assets": [
+    {
+      "id": 1,
+      "romanNumeral": "I",
+      "category": "Core",
+      "motifName": "日轮",
+      "palette": "wine red",
+      "sourceFile": "01-core-sun.png",
+      "sourceDimensions": [
+        948,
+        1659
+      ],
+      "sourceBytes": 1594203,
+      "runtimeFile": "assets/tarot/01-core-sun.webp",
+      "runtimeDimensions": [
+        560,
+        980
+      ],
+      "runtimeBytes": 54572,
+      "runtimeSha256": "b4d7988e6c54a9645ce3577275ba3da2a6a790ee241d3f24e50594c474426be0",
+      "editTarget": "archive:tarot-v4/01-core-sun.png",
+      "generatedSource": "imagegen-output:01a0d184-1962-7fc3-ab27-d7c76200afd8/exec-407bc96a-c939-4b88-b6cb-9cbb40911d25.png",
+      "reference": null
+    },
+    {
+      "id": 2,
+      "romanNumeral": "II",
+      "category": "Core",
+      "motifName": "火种",
+      "palette": "wine red",
+      "sourceFile": "02-core-spark.png",
+      "sourceDimensions": [
+        948,
+        1659
+      ],
+      "sourceBytes": 1510183,
+      "runtimeFile": "assets/tarot/02-core-spark.webp",
+      "runtimeDimensions": [
+        560,
+        980
+      ],
+      "runtimeBytes": 47578,
+      "runtimeSha256": "aa28164f3373c6fdbdca69f8ac105d33796e69fb8664bbac88edfabf06ab933d",
+      "editTarget": "archive:tarot-v4/02-core-spark.png",
+      "generatedSource": "imagegen-output:01a0d184-1962-7fc3-ab27-d7c76200afd8/exec-96c525e7-4e2a-4713-bdfc-2af70802dc39.png",
+      "reference": "01-core-sun.png"
+    },
+    {
+      "id": 3,
+      "romanNumeral": "III",
+      "category": "System",
+      "motifName": "月衡",
+      "palette": "indigo",
+      "sourceFile": "03-system-moon.png",
+      "sourceDimensions": [
+        948,
+        1660
+      ],
+      "sourceBytes": 1522809,
+      "runtimeFile": "assets/tarot/03-system-moon.webp",
+      "runtimeDimensions": [
+        560,
+        981
+      ],
+      "runtimeBytes": 57820,
+      "runtimeSha256": "2e76db04ba1dc89cd58fb849503bfbfec510e58cf51dbce4102eba8a0d25990a",
+      "editTarget": "archive:tarot-v4/03-system-moon.png",
+      "generatedSource": "imagegen-output:01a0d184-1962-7fc3-ab27-d7c76200afd8/exec-8f4809f3-7c59-4f10-acd0-f6ad5fac4a64.png",
+      "reference": "01-core-sun.png"
+    },
+    {
+      "id": 4,
+      "romanNumeral": "IV",
+      "category": "System",
+      "motifName": "秘典",
+      "palette": "indigo",
+      "sourceFile": "04-system-grimoire.png",
+      "sourceDimensions": [
+        948,
+        1660
+      ],
+      "sourceBytes": 1585637,
+      "runtimeFile": "assets/tarot/04-system-grimoire.webp",
+      "runtimeDimensions": [
+        560,
+        981
+      ],
+      "runtimeBytes": 60728,
+      "runtimeSha256": "9d44b4c5fea39eb17847b32fa431c63bfe1868b1119bf0ba7fd6dcb7073a48a2",
+      "editTarget": "archive:tarot-v4/04-system-grimoire.png",
+      "generatedSource": "imagegen-output:01a0d184-1962-7fc3-ab27-d7c76200afd8/exec-d0cb45f8-776c-4587-b3e4-cdefddb33cfa.png",
+      "reference": "01-core-sun.png"
+    },
+    {
+      "id": 5,
+      "romanNumeral": "V",
+      "category": "Feature",
+      "motifName": "罗盘",
+      "palette": "emerald",
+      "sourceFile": "05-function-compass.png",
+      "sourceDimensions": [
+        948,
+        1659
+      ],
+      "sourceBytes": 1480053,
+      "runtimeFile": "assets/tarot/05-function-compass.webp",
+      "runtimeDimensions": [
+        560,
+        980
+      ],
+      "runtimeBytes": 54922,
+      "runtimeSha256": "433e9edbc2315b6831fb171005be5ac237f71da79e03239d6e790dd32bf6c090",
+      "editTarget": "archive:tarot-v4/05-function-compass.png",
+      "generatedSource": "imagegen-output:01a0d184-1962-7fc3-ab27-d7c76200afd8/exec-2019ea21-b4e8-483c-9ccf-d2f826c5ecec.png",
+      "reference": "01-core-sun.png"
+    },
+    {
+      "id": 6,
+      "romanNumeral": "VI",
+      "category": "Feature",
+      "motifName": "羽笔",
+      "palette": "emerald",
+      "sourceFile": "06-function-quill.png",
+      "sourceDimensions": [
+        948,
+        1659
+      ],
+      "sourceBytes": 1517298,
+      "runtimeFile": "assets/tarot/06-function-quill.webp",
+      "runtimeDimensions": [
+        560,
+        980
+      ],
+      "runtimeBytes": 59548,
+      "runtimeSha256": "b694b041f81649dce0b6d0061d49d2af05c8a5cd0622edc340eb56bcb7467e6b",
+      "editTarget": "archive:tarot-v4/06-function-quill.png",
+      "generatedSource": "imagegen-output:01a0d184-1962-7fc3-ab27-d7c76200afd8/exec-e9637f82-4bce-402e-b5c4-99335f2a8854.png",
+      "reference": "01-core-sun.png"
+    },
+    {
+      "id": 7,
+      "romanNumeral": "VII",
+      "category": "Extension",
+      "motifName": "星门",
+      "palette": "purple",
+      "sourceFile": "07-extension-gate.png",
+      "sourceDimensions": [
+        948,
+        1659
+      ],
+      "sourceBytes": 1447946,
+      "runtimeFile": "assets/tarot/07-extension-gate.webp",
+      "runtimeDimensions": [
+        560,
+        980
+      ],
+      "runtimeBytes": 48136,
+      "runtimeSha256": "1b3e56dddf55b08395ef29a546ee911142589c6886ef813b471e1f0307df47e9",
+      "editTarget": "archive:tarot-v4/07-extension-gate.png",
+      "generatedSource": "imagegen-output:01a0d184-1962-7fc3-ab27-d7c76200afd8/exec-601352c4-fcaa-4dd2-a050-6f799e6bed76.png",
+      "reference": "01-core-sun.png"
+    },
+    {
+      "id": 8,
+      "romanNumeral": "VIII",
+      "category": "Extension",
+      "motifName": "信使",
+      "palette": "purple",
+      "sourceFile": "08-extension-messenger.png",
+      "sourceDimensions": [
+        948,
+        1660
+      ],
+      "sourceBytes": 1527048,
+      "runtimeFile": "assets/tarot/08-extension-messenger.webp",
+      "runtimeDimensions": [
+        560,
+        981
+      ],
+      "runtimeBytes": 51636,
+      "runtimeSha256": "b646e675e623b98ca26511fd79cdf868a79def57e59b9e9eb15dd644358d1087",
+      "editTarget": "archive:tarot-v4/08-extension-messenger.png",
+      "generatedSource": "imagegen-output:01a0d184-1962-7fc3-ab27-d7c76200afd8/exec-eccd0571-7289-41fc-841b-1ee35f33be54.png",
+      "reference": "01-core-sun.png"
+    }
+  ]
+}

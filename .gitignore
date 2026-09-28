@@ -8,3 +8,8 @@ macos/.swiftpm/
 macos/QA/
 __pycache__/
 exports/
+node_modules/
+.env
+.env.*
+!.env.example
+*.log

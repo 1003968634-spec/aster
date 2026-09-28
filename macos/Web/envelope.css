@@ -1,5 +1,6 @@
 /* Native Aster keeps only the letter opaque; the desktop remains visible around it. */
 html, body { background:transparent !important; }
+html.aster-desktop,html.aster-desktop body {overflow:clip;}
 body { min-width:0; }
 body > .gift-box, body > .watercolor-backdrop, body > .paper-grain { visibility:hidden; }
 :root {
@@ -13,10 +14,10 @@ body > .gift-box, body > .watercolor-backdrop, body > .paper-grain { visibility:
   transform:translate(-50%,-48%) rotate(-1.5deg);isolation:isolate;
   color:#827253;cursor:grab;user-select:none;z-index:1;
   filter:drop-shadow(1px 2px 0 #a89b803e) drop-shadow(0 16px 17px #29261f35);
-  transition:top .9s cubic-bezier(.22,.7,.24,1),width .9s cubic-bezier(.22,.7,.24,1),height .9s cubic-bezier(.22,.7,.24,1),transform .9s cubic-bezier(.22,.7,.24,1);
+  transition:top .9s cubic-bezier(.22,.7,.24,1),width .9s cubic-bezier(.22,.7,.24,1),height .9s cubic-bezier(.22,.7,.24,1),transform .9s cubic-bezier(.22,.7,.24,1),opacity .36s ease;
 }
 .desktop-envelope:active {cursor:grabbing;}
-.envelope-back,.envelope-lining,.envelope-wing,.envelope-pocket,.envelope-flap {position:absolute;inset:0;pointer-events:none;}
+.envelope-back,.envelope-lining,.envelope-wing,.envelope-pocket,.envelope-flap,.envelope-open-body {position:absolute;inset:0;pointer-events:none;}
 .envelope-back {background:var(--envelope-paper),linear-gradient(145deg,#eee6d2,#d6c8a9);clip-path:var(--letter-edge);}
 .envelope-lining {inset:5px 8px 8px;background:repeating-linear-gradient(30deg,#ece3c521 0 1px,transparent 1px 6px),linear-gradient(140deg,#94a79a,#c4cbbb 58%,#899c8f);clip-path:var(--letter-edge);box-shadow:inset 0 7px 20px #293e4033;overflow:hidden;}
 .envelope-lining::before,.envelope-lining::after {content:'';position:absolute;width:280px;height:280px;border:1px solid #ebdfbb88;border-radius:50%;left:calc(50% - 140px);top:calc(50% - 140px);transform:scaleY(.5) rotate(-25deg);}
@@ -33,6 +34,16 @@ body > .gift-box, body > .watercolor-backdrop, body > .paper-grain { visibility:
 .envelope-flap-paper {position:absolute;inset:0;clip-path:polygon(.25% .6%,12% .3%,26% .6%,42% .2%,60% .5%,75% .1%,88% .6%,99.6% .4%,55% 55.3%,53% 57%,50% 58%,47% 57%,45% 55.3%);background:var(--envelope-paper),linear-gradient(160deg,#f7f1e2,#f0e5cc 74%,#e4d7b8);}
 .envelope-flap-paper::before {content:'';position:absolute;inset:0;background:url('./assets/watercolor-canvas.png') center/100% 100%;opacity:.22;mix-blend-mode:multiply;}
 .envelope-flap-paper::after {content:'';position:absolute;inset:5px 12px 0;clip-path:polygon(0 0,100% 0,50% 54%);background:linear-gradient(178deg,#d2bd9225,transparent 6%);}
+.envelope-open-body {z-index:5;opacity:0;visibility:hidden;transition:opacity .24s ease,visibility 0s linear .24s;}
+.envelope-open-lining {position:absolute;inset:3px;background:linear-gradient(145deg,#b9c4b4d9,#d8d5bd 46%,#9da99ed9),url('./assets/letter-paper-real.png') center/cover;clip-path:var(--letter-edge);box-shadow:inset 0 12px 22px #384b4438;}
+.envelope-open-lining::after {content:'';position:absolute;inset:7%;border:1px solid #f3e6c66b;clip-path:var(--letter-edge);}
+.envelope-open-flap {position:absolute;z-index:2;left:1%;right:1%;top:-34%;height:34%;background:var(--envelope-paper),linear-gradient(165deg,#f4edda,#d7c7a7 80%),url('./assets/letter-paper-real.png') center/cover;clip-path:polygon(50% 0,100% 100%,0 100%);filter:drop-shadow(0 4px 2px #6f5c4145);}
+.envelope-open-flap::after {content:'';position:absolute;inset:4% 7% 0;background:linear-gradient(180deg,#f7f1e3d9,#d7c8a8d9),url('./assets/letter-paper-real.png') center/cover;clip-path:polygon(50% 0,100% 100%,0 100%);opacity:.72;}
+.envelope-open-wing {position:absolute;z-index:3;top:4%;bottom:3%;width:52%;background:var(--envelope-paper),linear-gradient(125deg,#f2ead8,#d7c8aa),url('./assets/letter-paper-real.png') center/cover;filter:drop-shadow(1px 1px 1px #695a4035);}
+.envelope-open-wing-left {left:0;clip-path:polygon(0 0,100% 50%,0 100%);}
+.envelope-open-wing-right {right:0;clip-path:polygon(100% 0,0 50%,100% 100%);background:linear-gradient(220deg,#f1ead9,#cfc09f);}
+.envelope-open-pocket {position:absolute;z-index:4;inset:0;background:linear-gradient(155deg,#f6efdfd9 15%,#ebe0c5 74%,#d5c7a8d9),url('./assets/letter-paper-real.png') center/cover;clip-path:polygon(.5% 99%,.5% 97%,47% 47%,50% 45%,53% 47%,99.5% 97%,99.5% 99%,80% 100%,50% 99.5%,20% 100%);filter:drop-shadow(0 -1px 1px #77664b42);}
+.envelope-open-pocket::after {content:'';position:absolute;inset:0;background:linear-gradient(170deg,transparent 35%,#b6a47f2b);clip-path:polygon(0 100%,50% 46%,100% 100%);}
 .envelope-address {position:absolute;z-index:6;top:72%;left:50%;transform:translateX(-50%) rotate(-1deg);text-align:center;white-space:nowrap;pointer-events:none;transition:opacity .25s,transform .5s;}
 .envelope-recipient {display:block;font-family:var(--signature-font,'Aster Chancery'),var(--serif);font-style:italic;font-size:40px;line-height:1.2;color:#817657;letter-spacing:.1px;}
 .envelope-inscription {display:block;margin-top:7px;font-family:var(--hand);font-size:20px;color:#a19479;}
@@ -87,7 +98,7 @@ body > .gift-box, body > .watercolor-backdrop, body > .paper-grain { visibility:
 #desktop-paper .gift-box .page:not(.home-page) {margin-top:20px;}
 .detail-dialog::backdrop {inset:56px 34px 87px;clip-path:var(--letter-edge);background:#25362c24;backdrop-filter:blur(3px);}
 
-.desktop-chrome {position:fixed;z-index:80;top:calc(50% - var(--envelope-height)/2 - 2px);left:calc(50% - var(--envelope-width)/2 + 22px);width:121px;height:37px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 13px;cursor:grab;isolation:isolate;transform:rotate(-1.5deg);filter:drop-shadow(1px 2px 2px #59513d2d);transition:top .85s cubic-bezier(.22,.7,.24,1),left .85s cubic-bezier(.22,.7,.24,1),transform .85s;}
+.desktop-chrome {position:fixed;z-index:80;top:14px;left:18px;width:121px;height:37px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 13px;cursor:grab;isolation:isolate;transform:rotate(-1deg);filter:drop-shadow(1px 2px 2px #59513d2d);transition:top .3s ease,left .3s ease,transform .3s ease;}
 .desktop-chrome::before {content:'';position:absolute;inset:0;z-index:-1;background:var(--envelope-paper),#f0e7d3;clip-path:polygon(2% 3%,39% 0,72% 3%,98% 0,100% 35%,99% 93%,73% 98%,46% 96%,1% 100%,0 43%);}
 .desktop-lights {display:flex;gap:9px;align-items:center;}
 .desktop-light {width:12px;height:12px;border-radius:50%;padding:0;display:grid;place-items:center;border:.65px solid #00000018;box-shadow:0 1px .5px #776b4b33;transition:transform .2s,filter .2s;}
@@ -97,13 +108,7 @@ body > .gift-box, body > .watercolor-backdrop, body > .paper-grain { visibility:
 .desktop-light:active {transform:scale(.89);}
 .light-close {background:#e98170;}.light-minimize {background:#dfbd65;}.light-zoom {background:#9bad86;}
 .desktop-chrome-mark {font-size:20px;color:#b7a37a;pointer-events:none;}
-.desktop-top-drag {position:fixed;top:18px;height:36px;left:172px;right:192px;z-index:60;display:none;cursor:grab;}
-#desktop-fold {position:fixed;z-index:80;right:49px;top:21px;display:flex;align-items:center;gap:9px;height:34px;padding:4px 14px;font-family:var(--hand);font-size:20px;color:#8b7e62;isolation:isolate;filter:drop-shadow(1px 2px 2px #59513d2d);}
-#desktop-fold[hidden] {display:none;}
-#desktop-fold::before {content:'';position:absolute;inset:0;z-index:-1;background:var(--envelope-paper),#eee5ce;clip-path:var(--cut-chip);}
-#desktop-fold svg {width:22px;height:19px;fill:none;stroke:#9f8960;stroke-width:1;stroke-linejoin:round;}
-#desktop-fold:hover {transform:translateY(-2px) rotate(1deg);color:#6c644d;}
-#desktop-fold:active {transform:translateY(1px);}
+.desktop-top-drag {position:fixed;top:14px;height:37px;left:170px;right:22px;z-index:60;display:none;cursor:grab;}
 
 :root[data-envelope="open"] #desktop-paper {pointer-events:auto;}
 

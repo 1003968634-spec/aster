@@ -1,30 +1,49 @@
-/* Photographic paper and wax, with the original brand artwork on a perforated stamp. */
+/* Original photographic envelope, with matching interior and reverse-face art. */
 :root {
-  --envelope-width:min(820px, calc(100vw - 132px));
+  --envelope-width:min(var(--sealed-envelope-width, 10000px), calc(100vw - 64px), calc((100vh - 80px) / .566));
   --envelope-height:calc(var(--envelope-width) * .566);
-  --flap-contour:polygon(0 0,100% 0,99.8% 6%,99.2% 10%,97% 15%,59% 68%,55% 71%,52% 72.4%,48% 72.4%,45% 71%,41% 68%,4% 17%,1.5% 12%,.3% 6%);
 }
 .desktop-envelope {
-  transform:translate(-50%,-46%) rotate(-1.2deg);
+  left:var(--sealed-center-x, 50%);top:var(--sealed-center-y, 50%);
+  transform:translate(-50%,-50%) rotate(-1.2deg);
+  container-type:inline-size;
   filter:drop-shadow(1px 3px 1px #4b361f28) drop-shadow(3px 16px 13px #3c2d2240);
 }
-.envelope-back {
-  z-index:2;background:none;
-  clip-path:polygon(0 0,0 100%,100% 100%,100% 0,99.8% 6%,99.2% 10%,97% 15%,59% 68%,55% 71%,52% 72.4%,48% 72.4%,45% 71%,41% 68%,4% 17%,1.5% 12%,.3% 6%);
-}
-.envelope-photo {
-  position:absolute;max-width:none;width:106.52%;height:125.49%;
-  left:-3.467%;top:-12.745%;display:block;pointer-events:none;user-select:none;
-}
+.envelope-back {z-index:2;background:none;clip-path:none;}
+.envelope-body-art,.envelope-flap-art,.envelope-closed-art,.envelope-photo-plate {position:absolute;inset:0;width:100%;height:100%;overflow:visible;display:block;pointer-events:none;}
+.envelope-mask-defs {position:absolute;width:0;height:0;overflow:hidden;pointer-events:none;}
+.envelope-photo {position:absolute;display:block;max-width:none;width:106.518724%;height:125.490196%;left:-3.467406%;top:-12.745098%;pointer-events:none;user-select:none;}
+.envelope-reverse-art {transform:scaleX(-1);}
+.envelope-reverse-photo {width:109.570042%;left:-5.20111%;top:-19.730392%;}
+.envelope-closed-art {z-index:2;opacity:1;transition:opacity .12s ease;}
+/* An unbroken back panel sits behind the letter. The side folds and lower
+   pocket cover it; there is no second downward-pointing flap in the mouth. */
 .envelope-lining {
-  inset:2px;z-index:0;clip-path:var(--letter-edge);opacity:1;
-  background:#d5c6a6 url('./assets/letter-paper-real.png') center/cover;
-  box-shadow:inset 0 20px 35px #6d533b55;
+  inset:0;z-index:0;clip-path:none;border-radius:0;opacity:1;
+  background:none;box-shadow:none;overflow:visible;
 }
 .envelope-lining::before,.envelope-lining::after {content:none;}
-.envelope-flap {z-index:3;transform-origin:50% 0;filter:none;visibility:visible;}
-.envelope-flap-paper {clip-path:var(--flap-contour);background:none;}
+.envelope-tucked-letter {
+  position:absolute;z-index:1;left:5%;right:5%;top:12px;bottom:6px;
+  background:#f3eddf url('./assets/letter-paper-real.png') center/cover;
+  box-shadow:0 -1px 2px #66523525;
+}
+:root:not([data-envelope="sealed"]):not([data-envelope="opening"][data-envelope-stage="collecting"]):not([data-envelope-stage="unfolding"]) .envelope-tucked-letter {visibility:hidden;}
+.envelope-flap {
+  /* The photographic hinge is y=109, five pixels inside the crop, not y=0. */
+  z-index:3;transform-origin:50% .612745%;filter:none;transform-style:preserve-3d;
+}
+.envelope-flap-paper {
+  clip-path:none;background:none;opacity:1;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  filter:drop-shadow(0 5px 3px #54402450);
+}
 .envelope-flap-paper::before,.envelope-flap-paper::after {content:none;}
+.envelope-flap-underside {
+  position:absolute;inset:0;clip-path:none;opacity:1;
+  transform:rotateY(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:none;box-shadow:none;pointer-events:none;
+}
 .envelope-address {
   top:auto;bottom:8%;left:8%;transform:rotate(-3deg);text-align:left;
   mix-blend-mode:multiply;
@@ -78,8 +97,8 @@
 
 /* The pocket, lining and flap remain the same opaque sheets in both directions.
    Their choreography is defined together in postage.css. */
-.desktop-chrome::before,#desktop-fold::before {background:#f0e8d6 url('./assets/letter-paper-real.png') center/cover;}
-@media(max-width:1020px) {
+.desktop-chrome::before {background:#f0e8d6 url('./assets/letter-paper-real.png') center/cover;}
+@container (max-width:720px) {
   .envelope-stamp {width:111px;height:112px;}
   .stamp-paper img {width:87px;}
   .stamp-caption {font-size:6.5px;}

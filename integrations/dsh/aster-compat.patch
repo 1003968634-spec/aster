@@ -1,0 +1,1282 @@
+diff --git a/docs/config-catalog.i18n.yaml b/docs/config-catalog.i18n.yaml
+index 106db59c55..506bd148b7 100644
+--- a/docs/config-catalog.i18n.yaml
++++ b/docs/config-catalog.i18n.yaml
+@@ -2,5 +2,5 @@
+ # side as of the last confirmed-consistent state. Both languages carry equal authority;
+ # after editing either side, bring the other along and re-record with:
+ #   pnpm run verify-translation-pairing --write docs/config-catalog.md
+-config-catalog.md: b9e75f6679d43aef41808a30ed370e26070c1331
+-config-catalog.zh.md: d76c88fb806998abee414347822a3d11c3b2b7de
++config-catalog.md: 8b6adae93767d4e7a1bb692ac1386b2d62238e3d
++config-catalog.zh.md: b32eaa19922a1233c1ee28d4b081c67df2a9ec40
+diff --git a/docs/config-catalog.md b/docs/config-catalog.md
+index b9e75f6679..8b6adae937 100644
+--- a/docs/config-catalog.md
++++ b/docs/config-catalog.md
+@@ -3903,6 +3903,8 @@ Requires: `webServer`
+ ```ts config-catalog
+ /** Plugin config: composed deployment settings plus per-invocation command-line values. */
+ export interface Config {
++  /** Absolute index.html path for a replacement frontend; absent serves the bundled Web frontend. */
++  frontendDistIndex?: string
+   /** Permit default-browser handoff after the Loader tree settles; an SSH launch suppresses it. */
+   openBrowser: boolean
+   /** Print the URL line on activation; a non-interactive layer can turn it off. */
+diff --git a/docs/config-catalog.zh.md b/docs/config-catalog.zh.md
+index d76c88fb80..b32eaa1992 100644
+--- a/docs/config-catalog.zh.md
++++ b/docs/config-catalog.zh.md
+@@ -3905,6 +3905,8 @@ export interface WebRuntimeConfig {
+ ```ts config-catalog
+ /** Plugin config: composed deployment settings plus per-invocation command-line values. */
+ export interface Config {
++  /** Absolute index.html path for a replacement frontend; absent serves the bundled Web frontend. */
++  frontendDistIndex?: string
+   /** Permit default-browser handoff after the Loader tree settles; an SSH launch suppresses it. */
+   openBrowser: boolean
+   /** Print the URL line on activation; a non-interactive layer can turn it off. */
+diff --git a/packages/bundle/web-app/README.i18n.yaml b/packages/bundle/web-app/README.i18n.yaml
+index 74fe2fd26a..2506242526 100644
+--- a/packages/bundle/web-app/README.i18n.yaml
++++ b/packages/bundle/web-app/README.i18n.yaml
+@@ -2,5 +2,5 @@
+ # side as of the last confirmed-consistent state. Both languages carry equal authority;
+ # after editing either side, bring the other along and re-record with:
+ #   pnpm run verify-translation-pairing --write packages/bundle/web-app/README.md
+-README.md: 9fd7cda152a2ca50eca253c54feb97b01d35e0ff
+-README.zh.md: e07e0556c1bd8b0869253add1ae591ce1c060ee0
++README.md: e57a358247fb83fb8c351f67dedb75599cacd01a
++README.zh.md: 43509b63d5a3c72c5b2497f5f41fe7373a21c28e
+diff --git a/packages/bundle/web-app/README.md b/packages/bundle/web-app/README.md
+index 9fd7cda152..e57a358247 100644
+--- a/packages/bundle/web-app/README.md
++++ b/packages/bundle/web-app/README.md
+@@ -14,6 +14,7 @@ Run `dsh --profile web` to open an interactive browser GUI with chat, model and
+ ## Table of Contents
+ 
+ - [Use this package](#use-this-package)
++- [Serving another frontend](#serving-another-frontend)
+ - [Understand the implementation](#understand-the-implementation)
+ - [Further Exploration](#further-exploration)
+ - [Model Experience](#model-experience)
+@@ -42,10 +43,11 @@ Saved model selections override the composition default. The settings card accep
+ 
+ ### Configuration
+ 
+-Most users never set these; the command-line flags feed the four settings below — `--host`, `--port`, and `--trusted-host` come from the invocation, and `--no-open` turns the browser handoff off for that invocation:
++Most users never set these; command-line flags supply `--host`, `--port`, and `--trusted-host`, while `--no-open` turns the browser handoff off for that invocation:
+ 
+ | Field | Default | Meaning |
+ |---|---|---|
++| `frontendDistIndex` | bundled Web frontend | Absolute path to a replacement frontend's `index.html`; sibling files are served from its directory |
+ | `openBrowser` | `true` | Open the default browser after startup; SSH launches suppress it |
+ | `printUrl` | `true` | Print the `dsh web:` URL line at startup |
+ | `surfaceContext` | `true` | Give the agent GUI-orientation context and expose `DSH_WEB_URL` to its shell commands |
+@@ -53,6 +55,22 @@ Most users never set these; the command-line flags feed the four settings below
+ 
+ The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-web-app) is the exhaustive source for every accepted field and its JSDoc.
+ 
++### Serving another frontend
++
++Supply an absolute `frontendDistIndex` through a profile patch or `--patch` overlay. The `web-runtime` row replaces its whole `config`, so include the other four fields when overriding it:
++
++```yaml
++- id: web-runtime
++  config:
++    frontendDistIndex: /absolute/path/to/aster/Web/index.html
++    openBrowser: false
++    printUrl: true
++    surfaceContext: true
++    trustedHosts: []
++```
++
++Launch with `dsh --profile web --patch /absolute/path/to/overlay.yml --no-open --port 0`. Port `0` asks the operating system to assign a free loopback port; the `dsh web:` startup line contains the authenticated URL. A browser exchanges its process token for an HttpOnly cookie and redirects to the clean root. A desktop WebView whose initial navigation originates at `file://` can instead make that exchange with a native HTTP client, insert the returned cookie into the WebView cookie store, and load the clean root. The replacement page must use the DSH boot injections and Host RPC client protocol to provide working controls; selecting its index only changes which static files the Host serves.
++
+ ### LAN access and trusted hosts
+ 
+ By default the GUI accepts connections from this machine only. A deployment that binds all network interfaces also allows browsers from the LAN, and the printed URL then includes a LAN address; `--trusted-host` adds extra hosts in either case. Host and Origin checks control reachability, while the token exchange authenticates every Host API method and WebSocket stream. The LAN addresses are sampled once at startup, so a network change later is not picked up — restart the GUI to re-advertise.
+@@ -73,7 +91,7 @@ Each browser session selects a shipped preset (`standard` by default). The Agent
+ <details>
+ <summary>Implementation internals — click to expand</summary>
+ 
+-The bundle is one patch layer of five files plus one runtime glue plugin: `cordis.patch.yml` carries the host rows and the preset registry, and each `presets/<id>.patch.yml` inserts one shipped preset declaration, applied in the order `dsh.bundle.patch` lists them. The storage stack and projection cache come from `dsh-base`; the web overlay's workspace and message-feedback rows consume that shared `storageDomain` service. The patch restates the surface-specific values the base deliberately omits, inserts the web-only host rows and browser roster, then moves the agent plane behind presets. The glue plugin owns dist serving, trust sampling, prompt sections, the bash variable, and the readiness announcements. The `office-to-pdf` row mounts one lazy [Office conversion provider](../../document/office-to-pdf/README.md) for Host consumers, including Desktop compositions using this bundle. The conversion service's Remote methods authorize preview reads, while Document Preview owns the Office viewer and Client cache.
++The bundle is one patch layer of five files plus one runtime glue plugin: `cordis.patch.yml` carries the host rows and the preset registry, and each `presets/<id>.patch.yml` inserts one shipped preset declaration, applied in the order `dsh.bundle.patch` lists them. The storage stack and projection cache come from `dsh-base`; the web overlay's workspace and message-feedback rows consume that shared `storageDomain` service. The patch restates the surface-specific values the base deliberately omits, inserts the web-only host rows and browser roster, then moves the agent plane behind presets. The glue plugin serves the bundled dist or the configured replacement index and owns trust sampling, prompt sections, the bash variable, and readiness announcements. The `office-to-pdf` row mounts one lazy [Office conversion provider](../../document/office-to-pdf/README.md) for Host consumers, including Desktop compositions using this bundle. The conversion service's Remote methods authorize preview reads, while Document Preview owns the Office viewer and Client cache.
+ 
+ ### Patch semantics
+ 
+diff --git a/packages/bundle/web-app/README.zh.md b/packages/bundle/web-app/README.zh.md
+index e07e0556c1..43509b63d5 100644
+--- a/packages/bundle/web-app/README.zh.md
++++ b/packages/bundle/web-app/README.zh.md
+@@ -14,6 +14,7 @@ kind: "package-bundle"
+ ## 目录
+ 
+ - [使用本包](#use-this-package)
++- [提供其他前端](#serving-another-frontend)
+ - [理解实现](#understand-the-implementation)
+ - [进一步探索](#further-exploration)
+ - [模型体验](#model-experience)
+@@ -42,10 +43,11 @@ dsh --profile web --no-open --port 8080
+ 
+ ### 配置
+ 
+-大多数用户不需要设置这些；命令行 flag 会提供给下面四个设置——`--host`、`--port` 与 `--trusted-host` 来自本次调用，`--no-open` 仅对本次调用关闭浏览器交接：
++大多数用户不需要设置这些；命令行 flag 提供 `--host`、`--port` 与 `--trusted-host`，`--no-open` 仅对本次调用关闭浏览器交接：
+ 
+ | 字段 | 默认值 | 含义 |
+ |---|---|---|
++| `frontendDistIndex` | 内置 Web 前端 | 替代前端的 `index.html` 绝对路径；从其所在目录提供同级文件 |
+ | `openBrowser` | `true` | 启动后用默认浏览器打开；SSH 启动会抑制它 |
+ | `printUrl` | `true` | 启动时打印 `dsh web:` URL 行 |
+ | `surfaceContext` | `true` | 给 agent 提供 GUI 定位上下文，并把 `DSH_WEB_URL` 暴露给其 shell 命令 |
+@@ -53,6 +55,23 @@ dsh --profile web --no-open --port 8080
+ 
+ 生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-web-app)是每个受支持字段及其 JSDoc 的穷尽式真源。
+ 
++<a id="serving-another-frontend"></a>
++### 提供其他前端
++
++通过 profile 补丁或 `--patch` 叠加层提供绝对路径 `frontendDistIndex`。`web-runtime` 行会整体替换 `config`，因此覆盖时也要写上其他四个字段：
++
++```yaml
++- id: web-runtime
++  config:
++    frontendDistIndex: /absolute/path/to/aster/Web/index.html
++    openBrowser: false
++    printUrl: true
++    surfaceContext: true
++    trustedHosts: []
++```
++
++用 `dsh --profile web --patch /absolute/path/to/overlay.yml --no-open --port 0` 启动。端口 `0` 表示由操作系统分配空闲 loopback 端口；启动时的 `dsh web:` 行包含已认证 URL。浏览器用进程 token 换取 HttpOnly cookie 后重定向到不含 token 的根路径。如果桌面 WebView 从 `file://` 页面开始导航，也可以由原生 HTTP 客户端完成这一交换、将收到的 cookie 写入 WebView cookie 存储，再加载无 token 的根路径。替代页面仍须使用 DSH 启动注入和 Host RPC 客户端协议，控件才能正常工作；指定 index 仅改变 Host 提供的静态文件。
++
+ ### LAN 访问与可信主机
+ 
+ 默认情况下 GUI 只接受本机的连接。绑定所有网络接口的部署也会允许 LAN 内的浏览器访问，此时打印的 URL 会附带一个 LAN 地址；`--trusted-host` 在两种情况下都能添加额外主机。Host 与 Origin 检查控制可达性，token 交换则认证每个 Host API 方法与 WebSocket 流。LAN 地址只在启动时采样一次，因此之后的网络变化不会被感知——重启 GUI 以重新公告。
+@@ -73,7 +92,7 @@ dsh --profile web --no-open --port 8080
+ <details>
+ <summary>实现细节——点击展开</summary>
+ 
+-此 bundle 由一层五个文件的补丁和一个运行时胶水插件组成：`cordis.patch.yml` 承载宿主行和 preset 注册表，每个 `presets/<id>.patch.yml` 插入一条随发行版交付的 preset 声明，按 `dsh.bundle.patch` 列出的顺序应用。存储栈与投影缓存来自 `dsh-base`；Web 叠加层的工作区和消息反馈条目消费共享的 `storageDomain` 服务。补丁重述 base 有意省略的界面专用值，插入 Web 专用宿主条目和浏览器插件列表，再将 Agent 层移到预设后面。胶水插件负责 dist 服务、信任采样、提示词段落、bash 变量和就绪通知。`office-to-pdf` 条目为宿主消费者挂载一个延迟创建引擎的 [Office 转换提供方](../../document/office-to-pdf/README.zh.md)，使用此 bundle 的 Desktop 组合也共享该提供方。 转换服务的 Remote 方法负责预览读取授权，Document Preview 负责 Office 查看器和客户端缓存。
++此 bundle 由一层五个文件的补丁和一个运行时胶水插件组成：`cordis.patch.yml` 承载宿主行和 preset 注册表，每个 `presets/<id>.patch.yml` 插入一条随发行版交付的 preset 声明，按 `dsh.bundle.patch` 列出的顺序应用。存储栈与投影缓存来自 `dsh-base`；Web 叠加层的工作区和消息反馈条目消费共享的 `storageDomain` 服务。补丁重述 base 有意省略的界面专用值，插入 Web 专用宿主条目和浏览器插件列表，再将 Agent 层移到预设后面。胶水插件提供内置 dist 或指定的替代 index，并负责信任采样、提示词段落、bash 变量和就绪通知。`office-to-pdf` 条目为宿主消费者挂载一个延迟创建引擎的 [Office 转换提供方](../../document/office-to-pdf/README.zh.md)，使用此 bundle 的 Desktop 组合也共享该提供方。 转换服务的 Remote 方法负责预览读取授权，Document Preview 负责 Office 查看器和客户端缓存。
+ 
+ ### patch 语义
+ 
+diff --git a/packages/bundle/web-app/cordis.patch.yml b/packages/bundle/web-app/cordis.patch.yml
+index 5ed86cceea..a14302b326 100644
+--- a/packages/bundle/web-app/cordis.patch.yml
++++ b/packages/bundle/web-app/cordis.patch.yml
+@@ -157,8 +157,8 @@
+         compressionLevel: 1
+         compressionThresholdBytes: 1024
+ 
+-    # Web glue owned by this bundle: resolves the built frontend dist (an
+-    # assembly fact of dsh-web-app, never user config), mounts the
++    # Web glue owned by this bundle: serves its built frontend dist unless a
++    # later patch supplies an absolute frontendDistIndex, then mounts the
+     # frontend-static fallback owner, registers the web-surface prompt
+     # section and the bash runtime variable, prints the URL line, and opens the
+     # canonical local URL after the full Loader tree settles and the required-
+diff --git a/packages/bundle/web-app/src/index.ts b/packages/bundle/web-app/src/index.ts
+index 76c212e4e6..e5ab07e49f 100644
+--- a/packages/bundle/web-app/src/index.ts
++++ b/packages/bundle/web-app/src/index.ts
+@@ -2,8 +2,8 @@
+  * @deepseek-ai/dsh-web-app — the browser-surface bundle's runtime glue plugin
+  * plus the bundle patch (`cordis.patch.yml`, declared by the `dsh.bundle.patch`
+  * manifest field). The plugin owns the browser-surface glue: it resolves
+- * the built frontend dist (workspace knowledge of this bundle, never user
+- * config), mounts the `frontend-static` fallback owner over it, registers the
++ * the built frontend dist or an absolute configured index path, mounts the
++ * `frontend-static` fallback owner over it, registers the
+  * harness-source and web-surface prompt sections, the bash-visible web runtime
+  * variable, the process-token URL line, and the default-browser handoff. The
+  * model and shell retain the clean URL. App command-line values arrive through
+@@ -13,7 +13,7 @@
+ 
+ import { spawn, type ChildProcess } from 'node:child_process'
+ import { createRequire } from 'node:module'
+-import { dirname, join } from 'node:path'
++import { dirname, isAbsolute, join } from 'node:path'
+ import { networkInterfaces } from 'node:os'
+ import { fileURLToPath } from 'node:url'
+ import type { Context } from '@deepseek-ai/cordis'
+@@ -42,6 +42,8 @@ export const inject = ['webServer']
+ 
+ /** Plugin config: composed deployment settings plus per-invocation command-line values. */
+ export interface Config {
++  /** Absolute index.html path for a replacement frontend; absent serves the bundled Web frontend. */
++  frontendDistIndex?: string
+   /** Permit default-browser handoff after the Loader tree settles; an SSH launch suppresses it. */
+   openBrowser: boolean
+   /** Print the URL line on activation; a non-interactive layer can turn it off. */
+@@ -58,6 +60,7 @@ export interface Config {
+ }
+ 
+ export const Config: z<Config> = z.object({
++  frontendDistIndex: z.string().min(1),
+   openBrowser: z.boolean().default(true),
+   printUrl: z.boolean().default(true),
+   surfaceContext: z.boolean().default(true),
+@@ -153,8 +156,8 @@ function localWebUrl(ctx: Context): string {
+ }
+ 
+ /**
+- * Dist location is workspace knowledge of this bundle: anchored on the
+- * frontend package manifest, not configured. Existence is a request-time
++ * The bundled dist location is anchored on the frontend package manifest.
++ * Existence is a request-time
+  * concern — the fallback owner reads files per request, so a composition
+  * whose page never reaches the fallback seat (the static worker preview
+  * ships its own page and carries no dist) boots without one.
+@@ -210,7 +213,7 @@ async function openBrowser(url: string): Promise<void> {
+   })
+ }
+ 
+-/** Test hooks for the built dist and native browser handoff; production never mutates them. */
++/** Test hooks for the bundled dist and native browser handoff; production never mutates them. */
+ export const internals: {
+   resolveDistIndex: () => string
+   openBrowser: (url: string) => Promise<void>
+@@ -223,13 +226,16 @@ export const internals: {
+  * @param config - validated {@link Config}.
+  */
+ export function apply(ctx: Context, config: Config): void {
++  if (config.frontendDistIndex !== undefined && !isAbsolute(config.frontendDistIndex)) {
++    throw new Error('web-app: frontendDistIndex must be an absolute path')
++  }
+   const runtime = resolveLanTrust(ctx.webServer.host, config.trustedHosts)
+   // The loopback URL belongs to this host. Under SSH, the operator reaches it
+   // through a local forwarding address that this process cannot derive.
+   const handoffBrowser = config.openBrowser && !launchedThroughSsh(launchEnvironmentOf(ctx))
+   // Release dependent rows only after bind-dependent trust has been sampled once.
+   ctx.provide(WEB_RUNTIME_SERVICE, runtime)
+-  ctx.plugin(FrontendStatic, { distIndex: internals.resolveDistIndex() })
++  ctx.plugin(FrontendStatic, { distIndex: config.frontendDistIndex ?? internals.resolveDistIndex() })
+   if (config.surfaceContext) {
+     ctx.inject(['systemPrompt'], (promptCtx) => {
+       addHarnessSourceSection(promptCtx, SOURCE_ROOT)
+diff --git a/packages/bundle/web-app/tests/browser-open.spec.ts b/packages/bundle/web-app/tests/browser-open.spec.ts
+index c9bc0c31cf..9dcba69031 100644
+--- a/packages/bundle/web-app/tests/browser-open.spec.ts
++++ b/packages/bundle/web-app/tests/browser-open.spec.ts
+@@ -33,14 +33,17 @@ afterEach(async () => {
+ })
+ 
+ describe('web app browser startup', () => {
+-  it('opens the canonical URL only after the complete page is reachable', async () => {
++  it('opens the canonical URL only after the configured frontend page is reachable', async () => {
+     const root = mkdtempSync(join(tmpdir(), 'dsh-web-browser-open-'))
+     tempRoots.push(root)
+     const dist = join(root, 'dist')
+     mkdirSync(dist)
+     const index = join(dist, 'index.html')
+-    writeFileSync(index, '<!doctype html><title>ready</title>')
++    writeFileSync(index, '<!doctype html><title>bundled</title>')
+     internals.resolveDistIndex = () => index
++    const replacement = join(root, 'aster', 'index.html')
++    mkdirSync(join(root, 'aster'))
++    writeFileSync(replacement, '<!doctype html><title>aster</title>')
+ 
+     const webserverModule = join(root, 'webserver.mjs')
+     const connectionModule = join(root, 'connection.mjs')
+@@ -73,6 +76,7 @@ describe('web app browser startup', () => {
+       '    printUrl: false',
+       '    surfaceContext: false',
+       '    trustedHosts: []',
++      `    frontendDistIndex: ${replacement}`,
+       '',
+     ].join('\n'))
+ 
+@@ -101,11 +105,14 @@ describe('web app browser startup', () => {
+ 
+     let openedUrl: string | undefined
+     let openedStatus: number | undefined
++    let openedBody: string | undefined
+     let resolveOpened!: () => void
+     const opened = new Promise<void>((resolve) => { resolveOpened = resolve })
+     internals.openBrowser = async (url) => {
+       openedUrl = url
+-      openedStatus = (await fetch(url)).status
++      const response = await fetch(url)
++      openedStatus = response.status
++      openedBody = await response.text()
+       resolveOpened()
+     }
+ 
+@@ -122,5 +129,7 @@ describe('web app browser startup', () => {
+ 
+     expect(openedUrl).toBe(`http://127.0.0.1:${String(ctx.webServer.port)}/?token=fixture-token`)
+     expect(openedStatus).toBe(200)
++    expect(openedBody).toContain('<title>aster</title>')
++    expect(openedBody).not.toContain('<title>bundled</title>')
+   })
+ })
+diff --git a/packages/bundle/web-app/tests/web-app.spec.ts b/packages/bundle/web-app/tests/web-app.spec.ts
+index c0aa838c0f..374ebb61c5 100644
+--- a/packages/bundle/web-app/tests/web-app.spec.ts
++++ b/packages/bundle/web-app/tests/web-app.spec.ts
+@@ -112,6 +112,21 @@ interface BashContribution {
+ }
+ 
+ describe('web-app runtime glue', () => {
++  it('requires an absolute path for a replacement frontend index', async () => {
++    const ctx = new Context()
++    ctx.provide('webServer', fakeHttpServer().server)
++    expect(() => {
++      apply(ctx, new Config({
++        frontendDistIndex: 'dist/index.html',
++        openBrowser: false,
++        printUrl: false,
++        surfaceContext: false,
++        trustedHosts: [],
++      }))
++    }).toThrow(/absolute path/)
++    await ctx.fiber.dispose()
++  })
++
+   it('mounts dist serving, prompt section, bash variables, and publishes the URL with the LAN snapshot', async () => {
+     stageDist()
+     const ctx = new Context()
+diff --git a/packages/host/frontend-static/README.i18n.yaml b/packages/host/frontend-static/README.i18n.yaml
+index d9297be421..199e064336 100644
+--- a/packages/host/frontend-static/README.i18n.yaml
++++ b/packages/host/frontend-static/README.i18n.yaml
+@@ -2,5 +2,5 @@
+ # side as of the last confirmed-consistent state. Both languages carry equal authority;
+ # after editing either side, bring the other along and re-record with:
+ #   pnpm run verify-translation-pairing --write packages/host/frontend-static/README.md
+-README.md: e9bf19b48acfbc8c1513b2b64226e17faf1dc2de
+-README.zh.md: 3021d6de08c6ab04732389423d0ae96846992dfe
++README.md: e873e738a0eb98c0fcdd5f6235a943c4e4f1b2e9
++README.zh.md: ea5fe3d89264fd05f7cba5abf14bb4fa417e969f
+diff --git a/packages/host/frontend-static/README.md b/packages/host/frontend-static/README.md
+index e9bf19b48a..e873e738a0 100644
+--- a/packages/host/frontend-static/README.md
++++ b/packages/host/frontend-static/README.md
+@@ -35,11 +35,11 @@ Compose this plugin in a browser-facing host that serves the built Web shell: it
+     distIndex: /absolute/path/to/dist/index.html
+ ```
+ 
+-`distIndex` is an assembly fact of the composing application: [`dsh-web-app`](../../bundle/web-app/README.md) resolves it through the frontend package's exports and mounts this plugin; a deployment never hardcodes it.
++`distIndex` is supplied by the composing application: [`dsh-web-app`](../../bundle/web-app/README.md) defaults to its bundled frontend and accepts an absolute replacement index through `frontendDistIndex`.
+ 
+ ### What the server enforces
+ 
+-Requests are served from the dist root (the directory containing `distIndex`). The dist root and the configured index path render `index.html` with HTTP 200; any other existing file is served directly with its MIME type, and unknown extensions ship as `application/octet-stream`. A path that resolves outside the root is rejected with 403, so a crafted path cannot read files above the dist. An absent or non-file target inside the dist root — a missing file, a directory, or a missing configured index — returns an empty 404. Non-GET/HEAD requests without a matching named route are answered 405. Every successful index response is rendered through the webserver's `renderIndex`, so the boot manifest reaches the page on `/` and on the configured index path.
++Requests are served from the dist root (the directory containing `distIndex`). The dist root and the configured index path render `index.html` with HTTP 200; existing files are served directly with MIME types for scripts, styles, images, fonts, and the shipped PWA assets, while unknown extensions ship as `application/octet-stream`. A path that resolves outside the root is rejected with 403, so a crafted path cannot read files above the dist. An absent or non-file target inside the dist root — a missing file, a directory, or a missing configured index — returns an empty 404. Non-GET/HEAD requests without a matching named route are answered 405. Every successful index response is rendered through the webserver's `renderIndex`, so the boot manifest reaches the page on `/` and on the configured index path.
+ 
+ The served HTML carries one document base, `<base href="./">`, ahead of every injected resource row, so it freezes the entry directory the page was loaded from: the shell's own app-directory-relative references and the Host's plugin-resource rows both resolve under the mount that served the page. The same index therefore serves the origin root and whatever mount a prefix-stripping proxy owns; this plugin renders it only for the dist root and the configured index path.
+ 
+@@ -103,7 +103,7 @@ None; this package neither assembles nor sends a provider request.
+ 
+ These limits define when a served asset class is not yet covered. They are current package constraints, not a task backlog.
+ 
+-- **The starter MIME table is minimal** — it covers the Vite-emitted asset set plus the shipped PWA manifest; other extensions fall back to `application/octet-stream` until an asset class ships.
++- **The MIME table covers shipped assets** — other extensions fall back to `application/octet-stream` until an asset class ships.
+ - **Pathname routing is explicit** — the current client enters through the root or configured index path and has no History API pathname routes. Adding one requires an explicit server rule and real-composition coverage rather than a broad fallback for every miss.
+ 
+ <a id="dev-note"></a>
+diff --git a/packages/host/frontend-static/README.zh.md b/packages/host/frontend-static/README.zh.md
+index 3021d6de08..ea5fe3d892 100644
+--- a/packages/host/frontend-static/README.zh.md
++++ b/packages/host/frontend-static/README.zh.md
+@@ -35,11 +35,11 @@ kind: "package-reference"
+     distIndex: /absolute/path/to/dist/index.html
+ ```
+ 
+-`distIndex` 是组合应用的组装事实：[`dsh-web-app`](../../bundle/web-app/README.zh.md) 通过前端包的 exports 解析它并挂载本插件；部署绝不硬编码它。
++`distIndex` 由组合应用提供：[`dsh-web-app`](../../bundle/web-app/README.zh.md) 默认使用内置前端，也接受通过 `frontendDistIndex` 指定的替代 index 绝对路径。
+ 
+ ### 服务器实施的约束
+ 
+-请求从 dist 根目录（包含 `distIndex` 的目录）提供。dist 根目录与配置的 index 路径以 HTTP 200 渲染 `index.html`；任何其他已有文件按自身 MIME 类型直接提供，未知扩展名按 `application/octet-stream` 提供。解析到根目录之外的路径以 403 拒绝，因此精心构造的路径无法读取 dist 之上的文件。dist 根目录内不存在或不是文件的目标——文件缺失、目录或配置的 index 缺失——返回空 404。没有匹配具名路由的非 GET／HEAD 请求返回 405。每个成功的 index 响应都经 webserver 的 `renderIndex` 渲染，因此启动 manifest（元数据清单）会通过 `/` 与配置的 index 路径送达页面。
++请求从 dist 根目录（包含 `distIndex` 的目录）提供。dist 根目录与配置的 index 路径以 HTTP 200 渲染 `index.html`；已有文件直接提供，脚本、样式、图像、字体和交付的 PWA 资产使用对应的 MIME 类型，未知扩展名按 `application/octet-stream` 提供。解析到根目录之外的路径以 403 拒绝，因此精心构造的路径无法读取 dist 之上的文件。dist 根目录内不存在或不是文件的目标——文件缺失、目录或配置的 index 缺失——返回空 404。没有匹配具名路由的非 GET／HEAD 请求返回 405。每个成功的 index 响应都经 webserver 的 `renderIndex` 渲染，因此启动 manifest（元数据清单）会通过 `/` 与配置的 index 路径送达页面。
+ 
+ 所服务的 HTML 携带唯一的文档 base `<base href="./">`，位于每一条注入资源行之前，因此它冻结页面加载时所处的入口目录：shell 自身的应用目录相对引用与宿主的插件资源行都在服务该页面的挂载下解析。同一份 index 因而既服务源站根目录，也服务剥离前缀的代理所拥有的任一挂载；本插件只为 dist 根目录与配置的 index 路径渲染它。
+ 
+@@ -103,7 +103,7 @@ kind: "package-reference"
+ 
+ 这些限制说明某个资产类别何时尚未被覆盖。它们是当前包约束，不是任务积压。
+ 
+-- **初始 MIME 表很精简**：它覆盖 Vite 输出的资产集合及实际交付的 PWA manifest；其他扩展名在相应资产类别发布前都会回退到 `application/octet-stream`。
++- **MIME 表覆盖交付的资产**：其他扩展名在相应资产类别发布前会回退到 `application/octet-stream`。
+ - **Pathname 路由是显式声明**——当前客户端从根目录或配置的 index 路径进入，没有 History API pathname 路由。新增一条需要显式服务器规则与真实组合覆盖，而不是对每次未命中做宽泛回退。
+ 
+ <a id="dev-note"></a>
+diff --git a/packages/host/frontend-static/src/index.ts b/packages/host/frontend-static/src/index.ts
+index e497efd228..7b70d3924a 100644
+--- a/packages/host/frontend-static/src/index.ts
++++ b/packages/host/frontend-static/src/index.ts
+@@ -43,6 +43,9 @@ const MIME: Record<string, string> = {
+   '.js': 'text/javascript; charset=utf-8',
+   '.css': 'text/css; charset=utf-8',
+   '.svg': 'image/svg+xml',
++  '.png': 'image/png',
++  '.ttf': 'font/ttf',
++  '.otf': 'font/otf',
+   '.json': 'application/json',
+   '.map': 'application/json',
+   '.webmanifest': 'application/manifest+json',
+diff --git a/packages/host/frontend-static/tests/frontend-static.spec.ts b/packages/host/frontend-static/tests/frontend-static.spec.ts
+index 88008b7d65..fb92da6698 100644
+--- a/packages/host/frontend-static/tests/frontend-static.spec.ts
++++ b/packages/host/frontend-static/tests/frontend-static.spec.ts
+@@ -38,6 +38,9 @@ async function loadComposition(): Promise<Context> {
+   await writeFile(distIndex, '<head></head><body>shell</body>')
+   await writeFile(join(dist, 'app.js'), 'export {}')
+   await writeFile(join(dist, 'blob.bin'), 'BLOB')
++  await writeFile(join(dist, 'paper.png'), 'PNG')
++  await writeFile(join(dist, 'display.ttf'), 'TTF')
++  await writeFile(join(dist, 'script.otf'), 'OTF')
+   await writeFile(join(dist, 'manifest.webmanifest'), '{}')
+   await mkdir(join(dist, 'empty'))
+   const configPath = join(root, 'cordis.yml')
+@@ -123,6 +126,9 @@ describe('real Loader composition', () => {
+ 
+     // Real assets with their MIME types; a live rebuild is served on the next read.
+     expect(await request(port, '/app.js')).toMatchObject({ status: 200, type: 'text/javascript; charset=utf-8', body: 'export {}' })
++    expect(await request(port, '/paper.png')).toMatchObject({ status: 200, type: 'image/png' })
++    expect(await request(port, '/display.ttf')).toMatchObject({ status: 200, type: 'font/ttf' })
++    expect(await request(port, '/script.otf')).toMatchObject({ status: 200, type: 'font/otf' })
+     expect(await request(port, '/manifest.webmanifest')).toMatchObject({
+       status: 200,
+       type: 'application/manifest+json',
+diff --git a/packages/host/plugin-inventory/README.i18n.yaml b/packages/host/plugin-inventory/README.i18n.yaml
+index 2916890a24..4716f91499 100644
+--- a/packages/host/plugin-inventory/README.i18n.yaml
++++ b/packages/host/plugin-inventory/README.i18n.yaml
+@@ -2,5 +2,5 @@
+ # side as of the last confirmed-consistent state. Both languages carry equal authority;
+ # after editing either side, bring the other along and re-record with:
+ #   pnpm run verify-translation-pairing --write packages/host/plugin-inventory/README.md
+-README.md: 8450339c1430b2ed1620004343f75d9cc21a0a19
+-README.zh.md: 345bf367ce9fe85fdfc80994a09e3b2f26fdc0ce
++README.md: f43eaf7017e3b92bf3d0439f22f3652cd80c6195
++README.zh.md: 2d894e8675872cb4ab77f32872c8cee38aa896dc
+diff --git a/packages/host/plugin-inventory/README.md b/packages/host/plugin-inventory/README.md
+index 8450339c14..f43eaf7017 100644
+--- a/packages/host/plugin-inventory/README.md
++++ b/packages/host/plugin-inventory/README.md
+@@ -33,6 +33,8 @@ Each row is one non-group Loader entry: its entry id, the exact module specifier
+ 
+ Loader and preset rows can carry optional `meta` with a title, description, or metadata diagnostic. The Host returns available translations and literal fallbacks; the Client selects its language. Metadata diagnostics do not change enablement or fiber phase.
+ 
++Loader rows can also carry `relatedPlugins`: distinct entries connected through currently resolved service injections, in either direction. Each relation identifies the other entry and names its connecting services in `reason`. The snapshot respects service isolation, combines multiple services between the same two entries, and excludes self-relations. No field means no live relation was resolved; it does not establish that a disabled plugin has no dependencies. Bundle membership, package dependencies, undeclared service reads, and unmounted preset compositions do not contribute relations.
++
+ ### Per-preset compositions
+ 
+ With a roster composed, `agentPresets` carries one group per preset in roster order: its id, whether the deployment ships it or the user owns it (`trust`, which clients use to localize shipped names), published display name, whether a session naming no preset composes it, and flattened plugin rows — entry id (null when the file row declares none), module specifier, effective enablement, the row's own `!!js` disabled expression when it carries one, and a root-fiber phase when the composition is live. A preset some session already composed answers from its newest standing generation — even when its file has since broken, because the mount is what those sessions run; one never composed since boot answers from its composition file with disabled gates evaluated against the Loader context, and reading never mounts a preset. `conditional` enablement marks a gate the Host could not evaluate, and a broken preset nothing composed stays listed with its reason and no rows. Without a roster the field is absent.
+diff --git a/packages/host/plugin-inventory/README.zh.md b/packages/host/plugin-inventory/README.zh.md
+index 345bf367ce..2d894e8675 100644
+--- a/packages/host/plugin-inventory/README.zh.md
++++ b/packages/host/plugin-inventory/README.zh.md
+@@ -33,6 +33,8 @@ kind: "package-reference"
+ 
+ Loader 行与预设行可以携带可选的 `meta`，其中包含标题、描述或元信息诊断。Host 返回可用翻译与字面回退文本，由 Client 选择语言。元信息诊断不改变启停状态或 fiber 阶段。
+ 
++Loader 行还可以携带 `relatedPlugins`：通过当前已解析的服务注入关联的不同条目，包含提供方和使用方两个方向。每条关联给出另一条目的标识，并在 `reason` 中列出关联的服务名。快照遵循服务隔离规则，合并同一对条目之间的多个服务，并排除自身关联。字段缺席表示没有解析到存活关联，不代表已禁用插件没有依赖。组合包成员关系、包依赖、未声明的服务读取以及未挂载的预设组合都不计入关联。
++
+ ### 每个预设的组合
+ 
+ 组合了 roster 时，`agentPresets` 按 roster 顺序携带每个预设一组：其 id、随部署内置还是用户自建（`trust`，客户端据此本地化内置预设名）、发布的显示名、未指名预设的会话是否组合它，以及压平后的插件行——条目 id（文件行未声明时为 null）、模块标识、有效启用状态、行自带的 `!!js` disabled 表达式（如有），以及组合存活时的根 Fiber 阶段。已有会话组合过的预设由其最新仍存续的世代作答——即使其文件事后损坏也是如此，因为挂载才是这些会话实际运行的组合；开机以来从未被组合的预设由其组合文件作答，disabled 门用 Loader 上下文求值，且读取从不挂载预设。`conditional` 表示宿主无法求值的门；无人组合的坏预设保留在列表中，携带原因且没有行。没有 roster 时该字段缺席。
+diff --git a/packages/host/plugin-inventory/package.json b/packages/host/plugin-inventory/package.json
+index 1a8befbb71..2281b2041b 100644
+--- a/packages/host/plugin-inventory/package.json
++++ b/packages/host/plugin-inventory/package.json
+@@ -59,6 +59,7 @@
+     }
+   },
+   "devDependencies": {
++    "@deepseek-ai/cordis-plugin-include": "workspace:~",
+     "@deepseek-ai/dsh-app-boot": "workspace:*",
+     "@deepseek-ai/dsh-package-manifest": "workspace:*",
+     "@deepseek-ai/cordis-plugin-loader": "workspace:~",
+diff --git a/packages/host/plugin-inventory/src/index.ts b/packages/host/plugin-inventory/src/index.ts
+index b122998414..4f1ab88fc8 100644
+--- a/packages/host/plugin-inventory/src/index.ts
++++ b/packages/host/plugin-inventory/src/index.ts
+@@ -14,6 +14,7 @@ import type {
+   PluginFiberPhase,
+   PluginInventoryEntry,
+   PluginInventorySnapshot,
++  RelatedPluginEntry,
+ } from './types.ts'
+ 
+ export type * from './types.ts'
+@@ -94,9 +95,10 @@ export async function readPluginInventory(ctx: Context): Promise<PluginInventory
+       ...meta === undefined ? {} : { meta },
+     })
+   }
++  const relatedEntries = relatePluginEntries(ctx, entries)
+   const presets = ctx.get('agentPresets')
+   const management = ctx.get('pluginManager') === undefined ? {} : { managementAvailable: true }
+-  if (presets === undefined) return { entries, ...management }
++  if (presets === undefined) return { entries: relatedEntries, ...management }
+   const agentPresets: AgentPresetPluginGroup[] = (await presets.compositionInventory()).map(
+     composition => ({
+       ...composition,
+@@ -110,5 +112,45 @@ export async function readPluginInventory(ctx: Context): Promise<PluginInventory
+       }),
+     }),
+   )
+-  return { entries, agentPresets, ...management }
++  return { entries: relatedEntries, agentPresets, ...management }
++}
++
++/** Read live service ownership in each consumer's isolation scope without retaining runtime objects. */
++function relatePluginEntries(ctx: Context, entries: readonly PluginInventoryEntry[]): PluginInventoryEntry[] {
++  const byId = new Map(entries.map((entry, order) => [String(entry.entryId), { entry, order }]))
++  const relations = new Map<string, Map<string, Set<string>>>()
++  const link = (from: string, to: string, service: string): void => {
++    let peers = relations.get(from)
++    if (peers === undefined) relations.set(from, peers = new Map())
++    let services = peers.get(to)
++    if (services === undefined) peers.set(to, services = new Set())
++    services.add(service)
++  }
++  for (const runtime of ctx.registry.values()) {
++    for (const fiber of runtime.fibers) {
++      if (fiber.uid === null) continue
++      const consumer = ctx.loader.locate(fiber)
++      if (consumer === undefined || !byId.has(consumer)) continue
++      for (const service of Object.keys(fiber.inject)) {
++        // Cordis uses this same scoped lookup when resolving a Fiber's injections.
++        const implementation = fiber.ctx.reflect._getImpl(service, true)
++        if (implementation === undefined) continue
++        const provider = ctx.loader.locate(implementation.fiber)
++        if (provider === undefined || provider === consumer || !byId.has(provider)) continue
++        link(consumer, provider, service)
++        link(provider, consumer, service)
++      }
++    }
++  }
++  return entries.map(entry => {
++    const peers = relations.get(entry.entryId)
++    if (peers === undefined) return entry
++    const relatedPlugins: RelatedPluginEntry[] = [...peers]
++      .sort(([left], [right]) => byId.get(left)!.order - byId.get(right)!.order)
++      .map(([id, services]) => {
++        const target = byId.get(id)!.entry
++        return { entryId: target.entryId, moduleName: target.moduleName, reason: [...services].sort().join(', ') }
++      })
++    return { ...entry, relatedPlugins }
++  })
+ }
+diff --git a/packages/host/plugin-inventory/src/types.ts b/packages/host/plugin-inventory/src/types.ts
+index b6ebc2d3ce..ad2977175e 100644
+--- a/packages/host/plugin-inventory/src/types.ts
++++ b/packages/host/plugin-inventory/src/types.ts
+@@ -13,6 +13,14 @@ export type PluginFiberPhase =
+   | 'unloading'
+   | null
+ 
++/** Another Loader entry connected by a currently resolved, declared service dependency. */
++export interface RelatedPluginEntry {
++  readonly entryId: PluginEntryId
++  readonly moduleName: string
++  /** Sorted service names connecting these entries, joined with a comma and space. */
++  readonly reason: string
++}
++
+ /** One non-group Loader entry exposed to trusted clients. */
+ export interface PluginInventoryEntry {
+   readonly entryId: PluginEntryId
+@@ -23,6 +31,11 @@ export interface PluginInventoryEntry {
+   /** Effective Loader enablement, including disabled ancestor groups. */
+   readonly enabled: boolean
+   readonly fiberPhase: PluginFiberPhase
++  /**
++   * Distinct current service providers or consumers, excluding this entry.
++   * Absent when no live relation resolves; absence does not imply no static dependencies.
++   */
++  readonly relatedPlugins?: readonly RelatedPluginEntry[]
+ }
+ 
+ /** Effective enablement of one preset composition row. */
+diff --git a/packages/host/plugin-inventory/tests/inventory.spec.ts b/packages/host/plugin-inventory/tests/inventory.spec.ts
+index 667d8ac66f..91cb348d20 100644
+--- a/packages/host/plugin-inventory/tests/inventory.spec.ts
++++ b/packages/host/plugin-inventory/tests/inventory.spec.ts
+@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url'
+ import { Context, FiberState, type Plugin } from '@deepseek-ai/cordis'
+ import { PluginPackages, readPluginMeta, type RuntimeResolution } from '@deepseek-ai/dsh-app-boot'
+ import Loader from '@deepseek-ai/cordis-plugin-loader'
++import Include from '@deepseek-ai/cordis-plugin-include'
+ import { remoteMethods } from '@deepseek-ai/dsh-typert-protocol'
+ import type { AgentPresetRegistry } from '@deepseek-ai/dsh-agent-preset-registry'
+ import PluginInventoryGateway from '../src/index.ts'
+@@ -66,6 +67,86 @@ function metadataFixture(mode: 'native' | 'runtime') {
+ }
+ 
+ describe('PluginInventoryGateway', () => {
++  it('reads distinct service relations from a YAML composition and removes them when providers stop', async () => {
++    const root = mkdtempSync(join(tmpdir(), 'dsh-inventory-relations-'))
++    roots.push(root)
++    const configPath = join(root, 'cordis.yml')
++    writeFileSync(configPath, [
++      '- id: primary',
++      '  name: cordis:provider',
++      '  config: { services: [relation.alpha, relation.beta] }',
++      '- id: secondary',
++      '  name: cordis:provider',
++      '  config: { services: [relation.gamma] }',
++      '- id: consumer',
++      '  name: cordis:consumer',
++      '- id: isolated-provider',
++      '  name: cordis:provider',
++      '  config: { services: [relation.alpha, relation.beta] }',
++      '  isolate: { relation.alpha: separate, relation.beta: separate }',
++      '- id: isolated-consumer',
++      '  name: cordis:consumer',
++      '  isolate: { relation.alpha: separate, relation.beta: separate }',
++      '- id: self',
++      '  name: cordis:self',
++      '- id: disabled',
++      '  name: cordis:consumer',
++      '  disabled: true',
++      '',
++    ].join('\n'))
++    const { ctx, inventory } = await harness(pathToFileURL(root).href + '/')
++    ctx.loader.builtins.include = Include
++    ctx.loader.builtins.provider = (ctx: Context, config: { services: string[] }) => {
++      for (const name of config.services) ctx.provide(name, {})
++    }
++    ctx.loader.builtins.consumer = {
++      inject: ['relation.alpha', 'relation.beta', 'relation.gamma'],
++      apply(ctx: Context) {
++        ctx.inject(['relation.alpha'], () => {})
++      },
++    }
++    ctx.loader.builtins.self = (ctx: Context) => {
++      ctx.provide('relation.self', {})
++      ctx.inject(['relation.self'], () => {})
++    }
++    await ctx.loader.create({ id: 'fixture', name: 'cordis:include', config: { path: pathToFileURL(configPath).href } })
++    await ctx.loader.await()
++    const entries = (await inventory.list()).entries
++    const find = (suffix: string) => {
++      const entry = entries.find(row => row.entryId.endsWith(suffix))
++      if (entry === undefined) throw new Error(`missing ${suffix}`)
++      return entry
++    }
++    const primary = find(':primary')
++    const secondary = find(':secondary')
++    const consumer = find(':consumer')
++    const isolatedProvider = find(':isolated-provider')
++    const isolatedConsumer = find(':isolated-consumer')
++    expect(consumer.relatedPlugins).toEqual([
++      { entryId: primary.entryId, moduleName: 'cordis:provider', reason: 'relation.alpha, relation.beta' },
++      { entryId: secondary.entryId, moduleName: 'cordis:provider', reason: 'relation.gamma' },
++    ])
++    expect(isolatedConsumer.relatedPlugins).toEqual([
++      { entryId: secondary.entryId, moduleName: 'cordis:provider', reason: 'relation.gamma' },
++      { entryId: isolatedProvider.entryId, moduleName: 'cordis:provider', reason: 'relation.alpha, relation.beta' },
++    ])
++    expect(primary.relatedPlugins).toEqual([
++      { entryId: consumer.entryId, moduleName: 'cordis:consumer', reason: 'relation.alpha, relation.beta' },
++    ])
++    expect(find(':self').relatedPlugins).toBeUndefined()
++    expect(find(':disabled').relatedPlugins).toBeUndefined()
++
++    await ctx.loader.update(primary.entryId, { disabled: true })
++    await ctx.loader.await()
++    const stopped = (await inventory.list()).entries
++    expect(stopped.find(row => row.entryId === primary.entryId)?.relatedPlugins).toBeUndefined()
++    expect(stopped.find(row => row.entryId === consumer.entryId)).toMatchObject({
++      fiberPhase: 'pending',
++      relatedPlugins: [{ entryId: secondary.entryId, moduleName: 'cordis:provider', reason: 'relation.gamma' }],
++    })
++    expect(stopped.find(row => row.entryId === isolatedConsumer.entryId)?.relatedPlugins).toEqual(isolatedConsumer.relatedPlugins)
++  })
++
+   it.each(['native', 'runtime'] as const)('reads local metadata while the package entry remains disabled with %s resolution', async (mode) => {
+     const { dir, baseUrl, resolution, expectUnlinked } = metadataFixture(mode)
+     mkdirSync(join(dir, 'locale'), { recursive: true })
+diff --git a/packages/schedule/schedule/README.i18n.yaml b/packages/schedule/schedule/README.i18n.yaml
+index 8cc722ee59..faa47c49b8 100644
+--- a/packages/schedule/schedule/README.i18n.yaml
++++ b/packages/schedule/schedule/README.i18n.yaml
+@@ -2,5 +2,5 @@
+ # side as of the last confirmed-consistent state. Both languages carry equal authority;
+ # after editing either side, bring the other along and re-record with:
+ #   pnpm run verify-translation-pairing --write packages/schedule/schedule/README.md
+-README.md: 55a4c86b88ae5a28219fd927930ec68cc780185e
+-README.zh.md: 4670803e88b61501a03e9635f6b260948c98610f
++README.md: f5baf2380a63157cfb34265440f0b63d6b5714fe
++README.zh.md: 5d7540e2b3a8f9e423675d615adc4ccf934b3756
+diff --git a/packages/schedule/schedule/README.md b/packages/schedule/schedule/README.md
+index 55a4c86b88..f5baf2380a 100644
+--- a/packages/schedule/schedule/README.md
++++ b/packages/schedule/schedule/README.md
+@@ -51,6 +51,8 @@ A successful create returns the reminder with its id, target time, state, and de
+ 
+ Input that cannot become a reminder — an empty prompt, more than one selector, an invalid time zone, a non-future or out-of-range time, a repeating interval below 5 minutes — returns a stable error code instead of succeeding. The generated [tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-schedule) owns the exact arguments each tool accepts.
+ 
++Connected interfaces can use the `schedules` Remote to create, edit, and delete reminders without asking the model. `capabilities` reads availability without opening a Session; mutations use the existing root-Agent lookup and the Session's Schedule owner. Pause is unsupported. The optional stock Web catalog remains read-only; [`src/management-types.ts`](src/management-types.ts) defines the human inputs and results, including `scheduledAt` for an absolute time.
++
+ ### When reminders fire
+ 
+ Due reminders appear as ordinary follow-up messages after the conversation becomes idle; the agent never interrupts a running turn. An already-live idle agent can claim maintenance and deliver immediately without another resume. One-time reminders fire before any repeating batch, and several repeating reminders due at once arrive together in one message ordered by time. If the session is closed or cold when a reminder comes due, it stays overdue until a future live root agent resumes the session — nothing is sent outside the session. A repeating reminder that missed intervals while the session was away presents only its latest due occurrence, not a backlog. The optional Web catalog shows only active records and is not a delivery receipt; dispatch means the follow-up was queued and recorded, not that the model succeeded or the user read the answer. Archiving a live session with active reminders is refused until they stop, and choosing to stop them deletes every active reminder; unarchiving does not bring them back.
+@@ -88,6 +90,7 @@ The package rests on one separation and three commitments:
+ |---|---|
+ | [`src/index.ts`](src/index.ts) | Plugin entry: `inject`, `agent/created` observation, per-root runtime and tool installation |
+ | [`src/tools.ts`](src/tools.ts) | Tool definitions, preflight, serialized transactions, closed error union |
++| [`src/management.ts`](src/management.ts) | Human Remote operations, safe replacement, cancellation and durability results |
+ | [`src/domain.ts`](src/domain.ts) | Strict decoding, fold, time validation, framing, occurrence arithmetic |
+ | [`src/runtime.ts`](src/runtime.ts) | Live timer owner: maintenance claim, follow-up, dispatch barrier |
+ | [`src/persistence.ts`](src/persistence.ts) | Schedule-owned use of the shared session durability barrier |
+@@ -114,7 +117,9 @@ Calendar normalization is deterministic. Local times inside a daylight-saving ga
+ 
+ One Agent-scoped queue serializes each accepted management transaction with the live owner's due transaction from preflight through any post-append barrier. `schedule_create` checkpoints, allocates a never-reused id, appends the create event, and checkpoints again; a cancelled caller stops before append. Every successful management preflight also asks the live owner to recompute, which recovers a retained create or delete batch after a previous post-append barrier returned `persistence_uncertain`.
+ 
+-Every read or decision from the fold first awaits `ctx.sessions.flush(session)`; a missing, rejected, or detached persistence path returns `persistence_uncertain`, and create and an actual delete await a second barrier after append before confirming the mutation. Shape-only failures are validated before the serialized transaction. Input, time, and durability failures return a closed set of stable version-1 error codes; the closed union and each code's conditions live in [`src/tools.ts`](src/tools.ts).
++Every read or decision from the fold first awaits `ctx.sessions.flush(session)`; a missing, rejected, or detached persistence path returns `persistence_uncertain`, and create and an actual delete await a second barrier after append before confirming the mutation. Tools validate shape-only failures before the serialized transaction and return a closed set of stable version-1 error codes; the closed union and each code's conditions live in [`src/tools.ts`](src/tools.ts).
++
++Human edits share that queue and the existing v1 events. An edit validates and confirms a new record before deleting the original; success returns the new id. If persistence or cancellation interrupts an appended replacement, the failure identifies that replacement and the original so the interface can refresh before retrying. A failed replacement checkpoint leaves the original active; a failed original-delete checkpoint leaves the confirmed replacement available. Plugin disposal waits for pending mutations and refuses any append after the owner is released.
+ 
+ ### Live owner
+ 
+diff --git a/packages/schedule/schedule/README.zh.md b/packages/schedule/schedule/README.zh.md
+index 4670803e88..5d7540e2b3 100644
+--- a/packages/schedule/schedule/README.zh.md
++++ b/packages/schedule/schedule/README.zh.md
+@@ -51,6 +51,8 @@ dsh web --patch apps/cli/config/examples/schedule/cordis.yml
+ 
+ 无法成为提醒的输入——空提示词、多于一个 selector、无效时区、非未来或超出范围的时间、低于 5 分钟的重复间隔——会返回稳定的错误代码而不是成功。生成的[工具目录](../../../docs/tool-catalog.zh.md#deepseek-aidsh-schedule)拥有每个工具接受的精确参数。
+ 
++已连接的界面可以通过 `schedules` Remote 创建、编辑与删除提醒，无需请求模型。`capabilities` 读取可用性而不打开 Session；变更使用既有根 Agent lookup 与该 Session 的 Schedule owner。不支持暂停。可选的标准 Web 目录仍为只读；[`src/management-types.ts`](src/management-types.ts) 定义用户操作的输入与结果，包括绝对时间字段 `scheduledAt`。
++
+ ### 提醒何时触发
+ 
+ 到期提醒会在会话空闲后作为普通 follow-up 消息出现；agent 绝不会中断正在运行的轮次。已经 live 且空闲的 agent 可以认领 maintenance 并立即交付，无需再次恢复。一次性提醒先于任何重复批次触发；同时到期的多条重复提醒会按时间顺序合并为一条消息。如果会话在提醒到期时已关闭或 cold，提醒会保持逾期，直到未来的 live 根 agent 恢复会话——会话之外不会发送任何内容。错过若干间隔的重复提醒只展示最新一个到期发生时点，不展示积压。可选 Web 目录只显示活动记录，并不充当交付回执；dispatch 表示 follow-up 已入队并被记录，不表示模型成功或用户已读取回答。归档仍有活动提醒的活会话会被拒绝，直到这些提醒停止；选择停止它们会删除全部活动提醒，取消归档不会把它们带回来。
+@@ -88,6 +90,7 @@ Session projection 是可选能力。`ctx.sessionProjections` 存在时，插件
+ |---|---|
+ | [`src/index.ts`](src/index.ts) | 插件入口：`inject`、`agent/created` 观察、按根的 runtime 与工具安装 |
+ | [`src/tools.ts`](src/tools.ts) | 工具定义、preflight、序列化事务、封闭错误联合 |
++| [`src/management.ts`](src/management.ts) | 用户 Remote 操作、安全替换、取消与持久化结果 |
+ | [`src/domain.ts`](src/domain.ts) | 严格解码、折叠、时间校验、framing、occurrence 算术 |
+ | [`src/runtime.ts`](src/runtime.ts) | live timer owner：maintenance 认领、follow-up、dispatch barrier |
+ | [`src/persistence.ts`](src/persistence.ts) | Schedule 对共享会话持久化 barrier 的使用 |
+@@ -115,7 +118,9 @@ projection 只携带持久记录。它不持久化或传输 scheduled／overdue
+ 
+ 一条 agent 范围的队列把每项已接纳的管理事务与 live owner 的到期事务从 preflight 到任何 post-append barrier 全程串行化。`schedule_create` 建立检查点、分配永不复用的 id、追加 create 事件，再次建立检查点；被取消的调用方在追加前停止。每次成功的管理 preflight 还会要求 live owner 重新计算，这会在先前的 post-append barrier 返回 `persistence_uncertain` 后恢复所保留的 create 或 delete 批次。
+ 
+-每项从折叠结果读取或作出判断的操作都会先等待 `ctx.sessions.flush(session)`；持久化路径缺失、被拒绝或已分离时返回 `persistence_uncertain`，create 与实际 delete 在追加后还会等待第二个 barrier 再确认变更。只依赖输入形状的失败会在序列化事务之前被验证。输入、时间与持久化失败会返回一组封闭的稳定版本 1 错误代码；该封闭联合及各代码的触发条件位于 [`src/tools.ts`](src/tools.ts)。
++每项从折叠结果读取或作出判断的操作都会先等待 `ctx.sessions.flush(session)`；持久化路径缺失、被拒绝或已分离时返回 `persistence_uncertain`，create 与实际 delete 在追加后还会等待第二个 barrier 再确认变更。工具在序列化事务之前验证只依赖输入形状的失败，并返回一组封闭的稳定版本 1 错误代码；该封闭联合及各代码的触发条件位于 [`src/tools.ts`](src/tools.ts)。
++
++用户编辑共享该队列与既有 v1 事件。编辑会先校验并确认新记录，再删除原记录；成功时返回新 id。如果持久化或取消中断已追加的替换操作，失败结果会标识替换记录与原记录，供界面刷新后再重试。替换记录的检查点失败会保留活动的原记录；原记录删除的检查点失败会保留已确认的替换记录。插件卸载会等待待处理变更，且在 owner 释放后拒绝任何追加。
+ 
+ ### live owner
+ 
+diff --git a/packages/schedule/schedule/package.json b/packages/schedule/schedule/package.json
+index d729668e9c..24ca15f099 100644
+--- a/packages/schedule/schedule/package.json
++++ b/packages/schedule/schedule/package.json
+@@ -27,13 +27,25 @@
+       "default": "./lib/types/client.js"
+     },
+     "./src/*": "./src/*",
+-    "./package.json": "./package.json"
++    "./package.json": "./package.json",
++    "./typert": {
++      "types": "./lib/typert.host.d.ts",
++      "default": "./lib/typert.host.js"
++    },
++    "./remote": {
++      "types": "./lib/typert.remote-client.d.ts",
++      "default": "./lib/typert.remote-client.js"
++    }
+   },
+   "files": [
+     "lib/index.js",
+     "lib/invariant.js",
+     "lib/types/**/*.js",
+-    "lib/types/**/*.d.ts"
++    "lib/types/**/*.d.ts",
++    "lib/typert.host.js",
++    "lib/typert.host.d.ts",
++    "lib/typert.remote-client.js",
++    "lib/typert.remote-client.d.ts"
+   ],
+   "license": "MIT",
+   "peerDependencies": {
+@@ -46,9 +58,11 @@
+     "@deepseek-ai/dsh-session-projection": "workspace:*",
+     "@deepseek-ai/dsh-tools": "workspace:*",
+     "@deepseek-ai/dsh-workspace": "workspace:*",
+-    "@deepseek-ai/cordis": "workspace:~"
++    "@deepseek-ai/cordis": "workspace:~",
++    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+   },
+   "dependencies": {
++    "@deepseek-ai/dsh-util-values": "workspace:*",
+     "zod": "^4.4.3"
+   },
+   "devDependencies": {
+@@ -66,6 +80,7 @@
+     "@deepseek-ai/dsh-system-prompt": "workspace:*",
+     "@deepseek-ai/dsh-tools": "workspace:*",
+     "@deepseek-ai/dsh-workspace": "workspace:*",
+-    "@deepseek-ai/cordis": "workspace:~"
++    "@deepseek-ai/cordis": "workspace:~",
++    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+   }
+ }
+diff --git a/packages/schedule/schedule/src/client.ts b/packages/schedule/schedule/src/client.ts
+index 798a3cd14c..79a3042526 100644
+--- a/packages/schedule/schedule/src/client.ts
++++ b/packages/schedule/schedule/src/client.ts
+@@ -1,2 +1,3 @@
+ /** Browser-safe Schedule vocabulary. @module @deepseek-ai/dsh-schedule/client */
+ export type * from './types.ts'
++export type * from './management-types.ts'
+diff --git a/packages/schedule/schedule/src/index.ts b/packages/schedule/schedule/src/index.ts
+index a59cc4a4e4..788fecf547 100644
+--- a/packages/schedule/schedule/src/index.ts
++++ b/packages/schedule/schedule/src/index.ts
+@@ -16,9 +16,12 @@ import { scheduleProjectionDefinition } from './projection.ts'
+ import { ScheduleRuntime } from './runtime.ts'
+ import { registerScheduleTools } from './tools.ts'
+ import { runScheduleTransaction } from './transaction.ts'
++import { ScheduleManagement } from './management.ts'
+ import type { ScheduleRecord } from './types.ts'
+ 
+ export type * from './types.ts'
++export type * from './management-types.ts'
++export { ScheduleManagement } from './management.ts'
+ export {
+   SCHEDULE_CHANGE_VERSION,
+   MIN_EVERY_INTERVAL_SECONDS,
+@@ -72,6 +75,11 @@ export function apply(ctx: Context): void {
+ 
+   const runtimes = new Map<Agent, OwnedRuntime>()
+   let stopping = false
++  new ScheduleManagement(ctx, (agent) => {
++    if (stopping || ctx.agents.get(agent.id) !== agent) return undefined
++    const owned = runtimes.get(agent)
++    return owned === undefined ? undefined : () => { owned.runtime.requestDrive() }
++  })
+   /** The owned runtime's active records for a session id; none without a live agent or an owned runtime. */
+   const activeReminders = (sessionId: SessionId): { agent: Agent; active: readonly ScheduleRecord[] } | undefined => {
+     const agent = ctx.agents.get(sessionId)
+diff --git a/packages/schedule/schedule/tests/plugin.spec.ts b/packages/schedule/schedule/tests/plugin.spec.ts
+index d6ef1e5d9b..6b8ce21c7b 100644
+--- a/packages/schedule/schedule/tests/plugin.spec.ts
++++ b/packages/schedule/schedule/tests/plugin.spec.ts
+@@ -1,4 +1,4 @@
+-import { describe, expect, it } from 'vitest'
++import { describe, expect, it, vi } from 'vitest'
+ import { Context } from '@deepseek-ai/cordis'
+ import Loader from '@deepseek-ai/cordis-plugin-loader'
+ import { agentEvents } from '@deepseek-ai/dsh-agent'
+@@ -14,6 +14,7 @@ import {
+ } from '@deepseek-ai/dsh-session-persistence'
+ import type { SessionAccess, SessionHandle, SessionPersistenceSnapshot } from '@deepseek-ai/dsh-session-persistence'
+ import * as toolSchedule from '../src/index.ts'
++import { runScheduleTransaction } from '../src/transaction.ts'
+ 
+ interface StoredProbeSession {
+   readonly header: SessionHeader
+@@ -86,6 +87,121 @@ async function settle(): Promise<void> {
+ }
+ 
+ describe('Schedule plugin composition', () => {
++  it('exposes human creation, safe replacement and deletion only for owned root Agents', async () => {
++    const ctx = await harness()
++    try {
++      const earlier = await ctx.agents.create({ sessionId: SessionId('schedule-before-management') })
++      const plugin = await ctx.plugin(toolSchedule)
++      const management = ctx.get('schedules') as toolSchedule.ScheduleManagement
++      const signal = new AbortController().signal
++      expect(management.capabilities()).toEqual({ create: true, update: true, delete: true, pause: false })
++      expect(ctx.agents.roots()).toEqual([earlier.agent])
++      const input = { kind: 'every' as const, prompt: 'Review progress', everySeconds: 3_600 }
++      expect(await management.create(earlier.agent, input, signal)).toMatchObject({ ok: false, code: 'schedule_unavailable' })
++      const root = await ctx.agents.create({ sessionId: SessionId('schedule-management') })
++      const child = await root.agent.ctx.agents.create({ sessionId: SessionId('schedule-management-child'), parentAgent: root.agent })
++      expect(await management.create(child.agent, input, signal)).toMatchObject({ ok: false, code: 'schedule_unavailable' })
++
++      const created = await management.create(root.agent, input, signal)
++      expect(created).toMatchObject({ ok: true, item: { id: 'schedule-1', prompt: 'Review progress' } })
++      if (!created.ok || !('item' in created)) throw new Error('expected a created reminder')
++      expect(await management.update(root.agent, created.item.id, { ...input, everySeconds: 299 }, signal))
++        .toMatchObject({ ok: false, code: 'frequency_too_high' })
++      expect(toolSchedule.foldScheduleEvents(root.agent.session.ownEvents()).active).toEqual([created.item])
++
++      const edits = await Promise.all([
++        management.update(root.agent, created.item.id, { ...input, prompt: 'First edit' }, signal),
++        management.update(root.agent, created.item.id, { ...input, prompt: 'Second edit' }, signal),
++      ])
++      expect(edits[0]).toMatchObject({ ok: true, replacedId: 'schedule-1', item: { id: 'schedule-2', prompt: 'First edit' } })
++      expect(edits[1]).toMatchObject({ ok: false, code: 'schedule_not_found' })
++      expect(toolSchedule.foldScheduleEvents(root.agent.session.ownEvents()).active).toHaveLength(1)
++      expect(await management.remove(root.agent, toolSchedule.ScheduleId('schedule-2'), signal))
++        .toEqual({ ok: true, deletedId: 'schedule-2' })
++      expect(toolSchedule.foldScheduleEvents(root.agent.session.ownEvents()).active).toEqual([])
++      await plugin.dispose()
++      expect(ctx.get('schedules')).toBeUndefined()
++      expect(await management.create(root.agent, input, signal)).toMatchObject({ ok: false, code: 'schedule_unavailable' })
++    } finally { await ctx.fiber.dispose() }
++  })
++
++  it('keeps the old reminder when replacement persistence fails and reports a new identity for recovery', async () => {
++    const ctx = await harness()
++    try {
++      await ctx.plugin(toolSchedule)
++      const root = await ctx.agents.create({ sessionId: SessionId('schedule-management-uncertain') })
++      const management = ctx.get('schedules') as toolSchedule.ScheduleManagement
++      const signal = new AbortController().signal
++      const input = { kind: 'after' as const, prompt: 'Keep original', afterSeconds: 3_600 }
++      const original = await management.create(root.agent, input, signal)
++      if (!original.ok || !('item' in original)) throw new Error('expected a created reminder')
++      await settle()
++      const flush = vi.spyOn(ctx.sessions, 'flush').mockResolvedValueOnce(true).mockResolvedValueOnce(false)
++      const result = await management.update(root.agent, original.item.id, { ...input, prompt: 'Replacement' }, signal)
++      flush.mockRestore()
++      expect(result).toMatchObject({ ok: false, code: 'persistence_uncertain', originalId: 'schedule-1', replacement: { id: 'schedule-2' } })
++      expect(toolSchedule.foldScheduleEvents(root.agent.session.ownEvents()).active.map(record => record.prompt))
++        .toEqual(['Keep original', 'Replacement'])
++
++      const deletionFailure = vi.spyOn(ctx.sessions, 'flush')
++        .mockResolvedValueOnce(true).mockResolvedValueOnce(true).mockResolvedValueOnce(false)
++      const cleanup = await management.update(root.agent, original.item.id, { ...input, prompt: 'Saved replacement' }, signal)
++      deletionFailure.mockRestore()
++      expect(cleanup).toMatchObject({ ok: false, code: 'replacement_cleanup_uncertain', originalId: 'schedule-1', replacement: { id: 'schedule-3' } })
++      expect(toolSchedule.foldScheduleEvents(root.agent.session.ownEvents()).active.map(record => record.id))
++        .toEqual(['schedule-2', 'schedule-3'])
++    } finally { vi.restoreAllMocks(); await ctx.fiber.dispose() }
++  })
++
++  it('shares the timer/tool queue and checks cancellation before appending', async () => {
++    const ctx = await harness()
++    try {
++      await ctx.plugin(toolSchedule)
++      const root = await ctx.agents.create({ sessionId: SessionId('schedule-management-cancel') })
++      const management = ctx.get('schedules') as toolSchedule.ScheduleManagement
++      const blocked = Promise.withResolvers<undefined>()
++      const entered = Promise.withResolvers<undefined>()
++      const prior = runScheduleTransaction(root.agent, async () => { entered.resolve(undefined); await blocked.promise })
++      await entered.promise
++      const controller = new AbortController()
++      const pending = management.create(root.agent, { kind: 'after', prompt: 'Cancelled', afterSeconds: 3_600 }, controller.signal)
++      controller.abort()
++      blocked.resolve(undefined)
++      await prior
++      expect(await pending).toMatchObject({ ok: false, code: 'cancelled' })
++      expect(toolSchedule.foldScheduleEvents(root.agent.session.ownEvents()).active).toEqual([])
++    } finally { await ctx.fiber.dispose() }
++  })
++
++  it('waits for an in-flight preflight on unload and refuses its late append', async () => {
++    const ctx = await harness()
++    const blocked = Promise.withResolvers<boolean>()
++    try {
++      const plugin = await ctx.plugin(toolSchedule)
++      const root = await ctx.agents.create({ sessionId: SessionId('schedule-management-unload') })
++      await settle()
++      const management = ctx.get('schedules') as toolSchedule.ScheduleManagement
++      const entered = Promise.withResolvers<undefined>()
++      const flush = vi.spyOn(ctx.sessions, 'flush').mockImplementationOnce(() => {
++        entered.resolve(undefined)
++        return blocked.promise
++      })
++      const pending = management.create(root.agent, { kind: 'after', prompt: 'Unloaded', afterSeconds: 3_600 }, new AbortController().signal)
++      await entered.promise
++      let stopped = false
++      const disposal = plugin.dispose().then(() => { stopped = true })
++      await settle()
++      expect(stopped).toBe(false)
++      blocked.resolve(true)
++      expect(await pending).toMatchObject({ ok: false, code: 'schedule_unavailable' })
++      await disposal
++      expect(stopped).toBe(true)
++      expect(toolSchedule.foldScheduleEvents(root.agent.session.ownEvents()).active).toEqual([])
++      expect(ctx.get('schedules')).toBeUndefined()
++      flush.mockRestore()
++    } finally { blocked.resolve(false); vi.restoreAllMocks(); await ctx.fiber.dispose() }
++  })
++
+   it('has the Loader-safe function-plugin export shape', () => {
+     expect('default' in toolSchedule).toBe(false)
+     expect(toolSchedule.name).toBe('schedule')
+diff --git a/packages/schedule/schedule/tsconfig.json b/packages/schedule/schedule/tsconfig.json
+index 212a2cb307..9b86a581f5 100644
+--- a/packages/schedule/schedule/tsconfig.json
++++ b/packages/schedule/schedule/tsconfig.json
+@@ -8,6 +8,9 @@
+     "src"
+   ],
+   "references": [
++    {
++      "path": "../../util/values"
++    },
+     {
+       "path": "../../../vendor/cosmokit"
+     },
+@@ -43,6 +46,9 @@
+     },
+     {
+       "path": "../../runtime-diagnostics/invariants"
++    },
++    {
++      "path": "../../typert/protocol"
+     }
+   ]
+ }
+diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
+index 232cfc6a3a..6f9444a7de 100644
+--- a/pnpm-lock.yaml
++++ b/pnpm-lock.yaml
+@@ -8694,6 +8694,9 @@ importers:
+       '@deepseek-ai/cordis':
+         specifier: workspace:~
+         version: link:../../../vendor/cordis
++      '@deepseek-ai/cordis-plugin-include':
++        specifier: workspace:~
++        version: link:../../../vendor/include
+       '@deepseek-ai/cordis-plugin-loader':
+         specifier: workspace:~
+         version: link:../../../vendor/loader
+@@ -9879,6 +9882,9 @@ importers:
+ 
+   packages/schedule/schedule:
+     dependencies:
++      '@deepseek-ai/dsh-util-values':
++        specifier: workspace:*
++        version: link:../../util/values
+       zod:
+         specifier: ^4.4.3
+         version: 4.4.3
+@@ -9925,6 +9931,9 @@ importers:
+       '@deepseek-ai/dsh-tools':
+         specifier: workspace:*
+         version: link:../../core/tools
++      '@deepseek-ai/dsh-typert-protocol':
++        specifier: workspace:*
++        version: link:../../typert/protocol
+       '@deepseek-ai/dsh-workspace':
+         specifier: workspace:*
+         version: link:../../workspace/workspace
+diff --git a/packages/schedule/schedule/src/management-types.ts b/packages/schedule/schedule/src/management-types.ts
+new file mode 100644
+index 0000000000..5500a90bc0
+--- /dev/null
++++ b/packages/schedule/schedule/src/management-types.ts
+@@ -0,0 +1,30 @@
++/** Human-facing Schedule management values; durable records keep their existing v1 format. */
++
++import type { ScheduleId, ScheduleRecord } from './types.ts'
++
++/** Exactly one supported reminder rule supplied by a client. */
++export type ScheduleInput =
++  | { readonly kind: 'after'; readonly prompt: string; readonly afterSeconds: number }
++  | { readonly kind: 'at'; readonly prompt: string; readonly scheduledAt: string }
++  | { readonly kind: 'every'; readonly prompt: string; readonly everySeconds: number }
++
++/** Operations exposed while the Schedule plugin is loaded. */
++export interface ScheduleCapabilities {
++  readonly create: boolean
++  readonly update: boolean
++  readonly delete: boolean
++  readonly pause: false
++}
++
++/** Human mutation result, including retained replacement records after an incomplete edit. */
++export type ScheduleMutationResult =
++  | { readonly ok: true; readonly item: ScheduleRecord; readonly replacedId?: ScheduleId }
++  | { readonly ok: true; readonly deletedId: ScheduleId }
++  | {
++    readonly ok: false
++    readonly code: string
++    readonly message: string
++    /** Appended replacement identity; read the current list before retrying an uncertain operation. */
++    readonly replacement?: ScheduleRecord
++    readonly originalId?: ScheduleId
++  }
+diff --git a/packages/schedule/schedule/src/management.ts b/packages/schedule/schedule/src/management.ts
+new file mode 100644
+index 0000000000..b0c833d5ec
+--- /dev/null
++++ b/packages/schedule/schedule/src/management.ts
+@@ -0,0 +1,179 @@
++/** Session-owned human Schedule mutations sharing the timer/tool transaction queue. */
++
++import type { Context } from '@deepseek-ai/cordis'
++import type { Agent } from '@deepseek-ai/dsh-agent'
++import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
++import { assertNever } from '@deepseek-ai/dsh-util-values'
++import {
++  allocateScheduleId, createAfterScheduleRecord, createAtScheduleRecord, createEveryScheduleRecord,
++  foldScheduleEvents, ScheduleInputError, ScheduleLogError,
++} from './domain.ts'
++import { flushSchedulePersistence } from './persistence.ts'
++import { runScheduleTransaction } from './transaction.ts'
++import type { ScheduleCapabilities, ScheduleInput, ScheduleMutationResult } from './management-types.ts'
++import type { ScheduleId, ScheduleRecord } from './types.ts'
++
++type Failure = Extract<ScheduleMutationResult, { ok: false }>
++
++/** Read-only availability and explicit human mutations for this plugin's exact live root Agents. */
++export class ScheduleManagement extends TypertRemoteService {
++  private readonly pending = new Set<Promise<ScheduleMutationResult>>()
++
++  /**
++   * Bind the Remote to the plugin's runtime owner map.
++   * @param ctx - Plugin context owning durability and this service's lifetime.
++   * @param owner - Resolve the exact live owner's timer notification, or undefined after release.
++   */
++  constructor(ctx: Context, private readonly owner: (agent: Agent) => (() => void) | undefined) {
++    super(ctx, 'schedules')
++    ctx.effect(() => async () => { await Promise.allSettled(this.pending) }, 'schedule.management()')
++  }
++
++  /**
++   * Describe human operations while this Schedule plugin is loaded.
++   * @returns Supported operations without opening, resuming, or creating a Session.
++   */
++  @Remote
++  capabilities(): ScheduleCapabilities {
++    return { create: true, update: true, delete: true, pause: false }
++  }
++
++  /**
++   * Create and durably confirm one reminder in the resolved root Agent's Session.
++   * @param agent - Exact Agent resolved by the existing Session lookup.
++   * @param input - One explicit reminder rule.
++   * @param signal - Remote cancellation; checked before appending.
++   * @returns The confirmed record or a contained error with any uncertain appended identity.
++   */
++  @Remote
++  create(agent: Agent, input: ScheduleInput, signal: AbortSignal): Promise<ScheduleMutationResult> {
++    return this.run(agent, signal, () => this.save(agent, input, signal))
++  }
++
++  /**
++   * Save a confirmed new record before retiring the old one, under one Schedule transaction.
++   * @param agent - Exact Agent resolved by the existing Session lookup.
++   * @param id - Current Session-local reminder identity.
++   * @param input - Replacement reminder rule.
++   * @param signal - Remote cancellation; checked before each append.
++   * @returns The replacement or an error identifying retained or uncertain replacement work.
++   */
++  @Remote
++  update(agent: Agent, id: ScheduleId, input: ScheduleInput, signal: AbortSignal): Promise<ScheduleMutationResult> {
++    return this.run(agent, signal, () => this.save(agent, input, signal, id))
++  }
++
++  /**
++   * Delete one active reminder after validating ownership and flushing its Session.
++   * @param agent - Exact Agent resolved by the existing Session lookup.
++   * @param id - Current Session-local reminder identity.
++   * @param signal - Remote cancellation; checked before appending.
++   * @returns The confirmed deletion or a contained error; unknown ids do not mutate the log.
++   */
++  @Remote('delete')
++  remove(agent: Agent, id: ScheduleId, signal: AbortSignal): Promise<ScheduleMutationResult> {
++    return this.run(agent, signal, async () => {
++      if (!await this.flush(agent)) return this.uncertain()
++      const invalid = this.unavailable(agent, signal)
++      if (invalid !== undefined) return invalid
++      const folded = this.fold(agent)
++      if ('ok' in folded) return folded
++      if (!folded.active.some(record => record.id === id)) return this.notFound()
++      agent.session.append('schedule/change', { version: 1, operation: 'delete', id })
++      if (!await this.flush(agent)) return this.uncertain()
++      this.notify(agent)
++      return { ok: true, deletedId: id }
++    })
++  }
++
++  private async save(agent: Agent, input: ScheduleInput, signal: AbortSignal, originalId?: ScheduleId): Promise<ScheduleMutationResult> {
++    if (!await this.flush(agent)) return this.uncertain()
++    const invalid = this.unavailable(agent, signal)
++    if (invalid !== undefined) return invalid
++    const folded = this.fold(agent)
++    if ('ok' in folded) return folded
++    if (originalId !== undefined && !folded.active.some(record => record.id === originalId)) return this.notFound()
++    const id = allocateScheduleId(folded)
++    let replacement: ScheduleRecord
++    try {
++      const now = Date.now()
++      switch (input.kind) {
++        case 'after': replacement = createAfterScheduleRecord(id, input.prompt, input.afterSeconds, now); break
++        case 'at': replacement = createAtScheduleRecord(id, input.prompt, input.scheduledAt, now); break
++        case 'every': replacement = createEveryScheduleRecord(id, input.prompt, input.everySeconds, now); break
++        default: return assertNever(input, 'Schedule input')
++      }
++    } catch (error) {
++      if (error instanceof ScheduleInputError) return { ok: false, code: error.code, message: error.message }
++      throw error
++    }
++    agent.session.append('schedule/change', { version: 1, operation: 'create', schedule: replacement })
++    if (!await this.flush(agent)) return { ...this.uncertain(), replacement, ...originalId === undefined ? {} : { originalId } }
++    this.notify(agent)
++    if (originalId === undefined) return { ok: true, item: replacement }
++
++    // The new record is durable before the old record can be removed.
++    const cancelled = this.unavailable(agent, signal)
++    if (cancelled !== undefined) return { ...cancelled, replacement, originalId }
++    try {
++      agent.session.append('schedule/change', { version: 1, operation: 'delete', id: originalId })
++    } catch {
++      return { ok: false, code: 'replacement_cleanup_failed', message: 'The new reminder is saved, but the old reminder could not be removed. Refresh the list before retrying.', replacement, originalId }
++    }
++    if (!await this.flush(agent)) return {
++      ok: false, code: 'replacement_cleanup_uncertain',
++      message: 'The new reminder is saved, but removal of the old reminder is not confirmed. Refresh the list before retrying.', replacement, originalId,
++    }
++    this.notify(agent)
++    return { ok: true, item: replacement, replacedId: originalId }
++  }
++
++  private run(agent: Agent, signal: AbortSignal, action: () => Promise<ScheduleMutationResult>): Promise<ScheduleMutationResult> {
++    const operation = runScheduleTransaction(agent, async (): Promise<ScheduleMutationResult> => {
++      const invalid = this.unavailable(agent, signal)
++      if (invalid !== undefined) return invalid
++      try { return await action() } catch {
++        return { ok: false, code: 'internal_error', message: 'The reminder could not be saved. Refresh the list before retrying.' }
++      }
++    })
++    this.pending.add(operation)
++    void operation.then(() => { this.pending.delete(operation) }, () => { this.pending.delete(operation) })
++    return operation
++  }
++
++  private unavailable(agent: Agent, signal: AbortSignal): Failure | undefined {
++    if (signal.aborted) return { ok: false, code: 'cancelled', message: 'The reminder change was cancelled.' }
++    if (this.owner(agent) === undefined) return { ok: false, code: 'schedule_unavailable', message: 'This Session has no active Schedule owner. Reopen the Session while Schedule is enabled.' }
++    return undefined
++  }
++
++  private fold(agent: Agent): ReturnType<typeof foldScheduleEvents> | Failure {
++    try {
++      // oxlint-disable-next-line typescript/no-deprecated -- Schedule's v1 durable fold reads the owned Session suffix.
++      return foldScheduleEvents(agent.session.ownEvents())
++    } catch (error) {
++      if (error instanceof ScheduleLogError) return { ok: false, code: 'corrupt_schedule_log', message: 'The Session reminder log is corrupt.' }
++      throw error
++    }
++  }
++
++  private async flush(agent: Agent): Promise<boolean> {
++    try { await flushSchedulePersistence(this.ctx, agent.session) } catch { return false }
++    this.notify(agent)
++    return true
++  }
++
++  private notify(agent: Agent): void {
++    try { this.owner(agent)?.() } catch (error) {
++      this.ctx.logger.warn(`schedule: management observer failed: ${error instanceof Error ? error.message : String(error)}`)
++    }
++  }
++
++  private uncertain(): Failure {
++    return { ok: false, code: 'persistence_uncertain', message: 'Reminder persistence is not confirmed. Refresh the list before retrying.' }
++  }
++
++  private notFound(): Failure {
++    return { ok: false, code: 'schedule_not_found', message: 'This reminder is no longer active. Refresh the list.' }
++  }
++}
